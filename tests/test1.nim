@@ -22,3 +22,4 @@ suite "toDeltaTime":
   test "3byte (32768~8388607) 23bit":
     check 16384.toDeltaTime == @[0b1000_0001'u8, 0b1000_0000, 0b0000_0000]
     check 16385.toDeltaTime == @[0b1000_0001'u8, 0b1000_0000, 0b0000_0001]
+    check 2097151.toDeltaTime == @[0b1111_1111'u8, 0b1111_1111, 0b0111_1111]

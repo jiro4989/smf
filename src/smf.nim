@@ -42,6 +42,8 @@
 ## See also:
 ## * http://maruyama.breadfish.jp/tech/smf/
 
+from algorithm import reverse
+
 const
   ## Header chunk
   ## ------------------------------------------------------------
@@ -66,16 +68,22 @@ const
     ## from trackDataLength
 
 proc toDeltaTime(n: int): seq[byte] = 
-  ## octal to deltatime
-  ## delta time format is 
-  ## 0b1000_0000 0b0000_0000
+  ## 10進数をデルタタイムに変換する。
+  ## デルタタイムは1byteのデータのうち、8bit目をデータが継続しているか、のフラグに使用する。
+  ## よって1byteで表現できるデータは127までになる。
+  ## 128のときは以下のようになる。
+  ##
+  ## 127             0b0111_1111
+  ## 128 0b1000_0001 0b0000_0000
+  if n <= 0:
+    return @[0'u8]
   var m = n
   var i: int
-  var data: byte
-  var x: int
-  while 1 <= (m / 128):
-    x += 1
-    m -= 128
-  if 0 < x:
-    result.add (x + 0b1000_0000).byte
-  result.add m.byte
+  while 0 < m:
+    var b = byte(m and 0b0111_1111)
+    if 0 < i:
+      b += 0b1000_0000
+    result.add b
+    m = m shr 7
+    inc i
+  result.reverse
