@@ -53,23 +53,33 @@
 ##   * ノートOFF 9n aa bb (n: 対象チャンネルナンバー, aa: ノートナンバー, bb: ベロシティ)
 ##   * コントロールチェンジ Bn aa bb (n: 対象チャンネルナンバー, aa: コントロールナンバー, bb: データ)
 ##
+## データサンプル
+##
+## イメージとしては以下のような感じ
+##
+## MThd ...................... (常に1つ)
+## MTrk ...................... (1つかもしれないし、それ以上かもしれない)
+## MTrk ......................
+## MTrk ......................
+##
 ## See also:
 ## * http://maruyama.breadfish.jp/tech/smf/
 ## * https://qiita.com/PianoScoreJP/items/2f03ae61d91db0334d45
 
 from algorithm import reverse
-from sequtils import mapIt
+from sequtils import mapIt, foldl
 import streams
 
 type
+  Track = object
+
   HeaderChunk = object
     chunkType, dataLength, format, trackCount, timePart: seq[byte]
   TrackChunk = object
-    chunkType, dataLength: seq[byte]
-    sections: seq[seq[byte]]
+    chunkType, dataLength, data: seq[byte]
   SMF* = object
     headerChunk: HeaderChunk
-    trackChunk: TrackChunk
+    trackChunks: seq[TrackChunk]
   ChannelMessage* = array[3, byte]
   ChannelMessageType* = enum
     noteOn, noteOff, controlChange
@@ -104,31 +114,37 @@ proc isSMFFile*(path: string): bool =
   discard strm.readData(addr(buf), len(buf))
   result = buf == headerChunkType
 
-proc parseHeaderChunk*(data: openArray[byte]): HeaderChunk =
+proc chunkSize(t: TrackChunk): int =
+  result = 8 + t.dataLength.mapIt(it.int).foldl(a+b)
+
+proc parseHeaderChunk(data: openArray[byte]): HeaderChunk =
   result.chunkType  = data[0..<4]   # 4byte
   result.dataLength = data[4..<8]   # 4byte
   result.format     = data[8..<10]  # 2byte
   result.trackCount = data[10..<12] # 2byte
   result.timePart   = data[12..<14] # 2byte
 
-proc parseTrackChunk*(data: openArray[byte]): TrackChunk =
+proc parseTrackChunk(data: openArray[byte]): TrackChunk =
   result.chunkType  = data[0..<4]   # 4byte
   result.dataLength = data[4..<8]   # 4byte
   var startPos = 8
   var part3 = startPos
-  while part3+3 < len(data):
+  while part3+3 <= len(data):
     let part = data[part3..<part3+3]
     if part == endOfTrack:
-      result.sections.add data[startPos..<part3+3]
-      part3 += 3
-      startPos = part3
-      continue
+      result.data = data[startPos..<part3+3]
+      return
     inc part3
 
 proc readSMFFile*(path: string): SMF =
-  let data = readFile(path).mapIt(it.byte)
+  var data = readFile(path).mapIt(it.byte)
   result.headerChunk = data.parseHeaderChunk
-  result.trackChunk = data[headerChunkLength..^1].parseTrackChunk
+
+  data = data[headerChunkLength..^1]
+  while 0 < len(data):
+    let track = data.parseTrackChunk
+    result.trackChunks.add track
+    data = data[track.chunkSize..^1]
 
 proc toDeltaTime(n: int): seq[byte] = 
   ## 10進数をデルタタイムに変換する。
