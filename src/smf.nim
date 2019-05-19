@@ -102,7 +102,9 @@ proc isSMFFile*(path: string): bool =
   ## pathのファイルがSMFファイルであるかを判定する。
   ## 先頭4byteを読み取って判定する。
   var strm = newFileStream(path)
+  if strm.isNil: return
   defer: strm.close
+
   var buf: array[4, byte]
   discard strm.readData(addr(buf), len(buf))
   result = buf == headerChunkType
@@ -117,7 +119,7 @@ proc parseHeaderChunk*(data: seq[byte]): HeaderChunk =
 proc parseTrackChunk*(data: seq[byte]): TrackChunk =
   result.chunkType  = data[0..<4]   # 4byte
   result.dataLength = data[4..<8]   # 4byte
-  var startPos = 9
+  var startPos = 8
   var part3 = startPos
   while startPos < len(data):
     let part = data[part3..<part3+3]

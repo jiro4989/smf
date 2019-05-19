@@ -1,7 +1,24 @@
 import unittest
-import sequtils, strutils
+import sequtils, strutils, streams
 
 include smf
+
+const midiFile = "tests/test.mid"
+
+suite "isSMFFile":
+  test "SMF file":
+    check midiFile.isSMFFile
+  test "Not SMF file":
+    check "smf.nimble".isSMFFile == false
+  test "Not exist file":
+    check "not_exist".isSMFFile == false
+
+# suite "parseHeaderChunk":
+#   test "1":
+#     var strm = newFileStream(midiFile)
+#     var data = 0'u8.repeat(99)
+#     discard strm.readData(addr(data), len(data))
+#     echo data
 
 suite "toDeltaTime":
   when false:
