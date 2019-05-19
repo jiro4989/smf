@@ -39,10 +39,30 @@
 ##   * 何小節何泊、という指定の仕方と何分何秒何フレームという指定の仕方がある
 ##   * 最上位ビット(7ビット)が0のときは前者、1のときは後者
 ##
+## イベント
+##
+## * デルタタイムとイベントはセットになっている
+## * デルタタイム、イベント、デルタタイム、イベントを交互に繰り返す
+## * イベントは3種類に分けられる
+##   * MIDIイベント
+##   * SysExイベント
+##   * メタイベント
+##
+## * チャンネルメッセージ
+##   * ノートON  8n aa bb (n: 対象チャンネルナンバー, aa: ノートナンバー, bb: ベロシティ)
+##   * ノートOFF 9n aa bb (n: 対象チャンネルナンバー, aa: ノートナンバー, bb: ベロシティ)
+##   * コントロールチェンジ Bn aa bb (n: 対象チャンネルナンバー, aa: コントロールナンバー, bb: データ)
+##
 ## See also:
 ## * http://maruyama.breadfish.jp/tech/smf/
 
 from algorithm import reverse
+
+type
+  ChannelMessage* = array[3, byte]
+  ChannelMessageType* = enum
+    noteOn, noteOff, controlChange
+  SysEx* = byte
 
 const
   ## Header chunk
@@ -66,6 +86,8 @@ const
     ## 4byte
   trackDataBody: seq[byte] = @[]
     ## from trackDataLength
+  sysExF0: SysEx = 0xF0
+  sysExF7: SysEx = 0xf7
 
 proc toDeltaTime(n: int): seq[byte] = 
   ## 10進数をデルタタイムに変換する。
@@ -87,3 +109,10 @@ proc toDeltaTime(n: int): seq[byte] =
     m = m shr 7
     inc i
   result.reverse
+
+proc newChannelMessage(t: ChannelMessageType,
+                       channelNo, noteNo, velocity: byte): ChannelMessage =
+  result = case t
+           of noteOn: [8'u8 + channelNo, noteNo, velocity]
+           of noteOff: [9'u8 + channelNo, noteNo, velocity]
+           of controlChange: [0xB'u8 + channelNo, noteNo, velocity]
