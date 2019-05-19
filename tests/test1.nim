@@ -13,12 +13,14 @@ suite "isSMFFile":
   test "Not exist file":
     check "not_exist".isSMFFile == false
 
-# suite "parseHeaderChunk":
-#   test "1":
-#     var strm = newFileStream(midiFile)
-#     var data = 0'u8.repeat(99)
-#     discard strm.readData(addr(data), len(data))
-#     echo data
+suite "parseHeaderChunk":
+  test "1":
+    var strm = newFileStream(midiFile)
+    defer: strm.close
+
+    var buf: array[100, byte]
+    discard strm.readData(addr(buf), len(buf))
+    echo buf.parseHeaderChunk
 
 suite "toDeltaTime":
   when false:

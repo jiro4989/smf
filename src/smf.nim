@@ -109,14 +109,14 @@ proc isSMFFile*(path: string): bool =
   discard strm.readData(addr(buf), len(buf))
   result = buf == headerChunkType
 
-proc parseHeaderChunk*(data: seq[byte]): HeaderChunk =
+proc parseHeaderChunk*(data: openArray[byte]): HeaderChunk =
   result.chunkType  = data[0..<4]   # 4byte
   result.dataLength = data[4..<8]   # 4byte
   result.format     = data[8..<10]  # 2byte
   result.trackCount = data[10..<12] # 2byte
   result.timePart   = data[12..<14] # 2byte
 
-proc parseTrackChunk*(data: seq[byte]): TrackChunk =
+proc parseTrackChunk*(data: openArray[byte]): TrackChunk =
   result.chunkType  = data[0..<4]   # 4byte
   result.dataLength = data[4..<8]   # 4byte
   var startPos = 8
