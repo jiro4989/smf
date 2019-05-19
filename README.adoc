@@ -1,0 +1,19 @@
+= smf
+
+smf is a library for SMF (Standard MIDI File).
+
+== Usage
+
+[source,nim]
+----
+import smf
+
+var s = newSMF()
+s.add "1C"
+s.add "1D"
+s.add "1A"
+s.add "1B"
+s.add "1F"
+
+writeFile("a.smf", s)
+----

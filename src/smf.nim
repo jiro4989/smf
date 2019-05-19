@@ -55,10 +55,17 @@
 ##
 ## See also:
 ## * http://maruyama.breadfish.jp/tech/smf/
+## * https://qiita.com/PianoScoreJP/items/2f03ae61d91db0334d45
 
 from algorithm import reverse
+import streams
 
 type
+  HeaderChunk = object
+    chunkType, dataLength, format, trackCount, timePart: seq[byte]
+  TrackChunk = object
+    chunkType, dataLength: seq[byte]
+    sections: seq[seq[byte]]
   ChannelMessage* = array[3, byte]
   ChannelMessageType* = enum
     noteOn, noteOff, controlChange
@@ -67,16 +74,17 @@ type
 const
   ## Header chunk
   ## ------------------------------------------------------------
-  chunkType: seq[byte] = @[0x4d'u8, 0x54, 0x68, 0x64]
+  headerChunkType: seq[byte] = @[0x4d'u8, 0x54, 0x68, 0x64]
     ## "MThd
-  dataLength: seq[byte] = @[0x00'u8, 0x00, 0x00, 0x06]
+  headerDataLength: seq[byte] = @[0x00'u8, 0x00, 0x00, 0x06]
     ## 0006
-  dataFormat: seq[byte] = @[0x00'u8, 0x00]
+  headerDataFormat: seq[byte] = @[0x00'u8, 0x00]
     ## 00 or 01 or 02
-  trackCount: seq[byte] = @[0x00'u8, 0x01]
+  headerTrackCount: seq[byte] = @[0x00'u8, 0x01]
     ## format0の時は01になる
-  timePart: seq[byte] = @[0x00'u8, 0x01]
+  headerTimePart: seq[byte] = @[0x00'u8, 0x01]
     ## 時間単位
+
   ## Track chunk
   ## ------------------------------------------------------------
   trackChunkType: seq[byte] = @[0x4d'u8, 0x54, 0x72, 0x6b]
@@ -88,6 +96,37 @@ const
     ## from trackDataLength
   sysExF0: SysEx = 0xF0
   sysExF7: SysEx = 0xf7
+  endOfTrack = @[0xFF'u8, 0x2F, 0x00]
+
+proc isSMFFile*(path: string): bool =
+  ## pathのファイルがSMFファイルであるかを判定する。
+  ## 先頭4byteを読み取って判定する。
+  var strm = newFileStream(path)
+  defer: strm.close
+  var buf: array[4, byte]
+  discard strm.readData(addr(buf), len(buf))
+  result = buf == headerChunkType
+
+proc parseHeaderChunk*(data: seq[byte]): HeaderChunk =
+  result.chunkType  = data[0..<4]   # 4byte
+  result.dataLength = data[4..<8]   # 4byte
+  result.format     = data[8..<10]  # 2byte
+  result.trackCount = data[10..<12] # 2byte
+  result.timePart   = data[12..<14] # 2byte
+
+proc parseTrackChunk*(data: seq[byte]): TrackChunk =
+  result.chunkType  = data[0..<4]   # 4byte
+  result.dataLength = data[4..<8]   # 4byte
+  var startPos = 9
+  var part3 = startPos
+  while startPos < len(data):
+    let part = data[part3..<part3+3]
+    if part == endOfTrack:
+      result.sections.add data[startPos..<part3+3]
+      part3 += 3
+      startPos = part3
+      continue
+    inc part3
 
 proc toDeltaTime(n: int): seq[byte] = 
   ## 10進数をデルタタイムに変換する。
