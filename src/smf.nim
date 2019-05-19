@@ -101,7 +101,8 @@ const
   trackDataLength: seq[byte] = @[] ## 4byte
   sysExF0: SysEx = 0xF0
   sysExF7: SysEx = 0xF7
-  endOfTrack* = @[0xFF'u8, 0x2F, 0x00]
+  metaPrefix = 0xFF'u8
+  endOfTrack* = @[metaPrefix, 0x2F, 0x00]
 
 proc isSMFFile*(path: string): bool =
   ## pathのファイルがSMFファイルであるかを判定する。
@@ -116,6 +117,46 @@ proc isSMFFile*(path: string): bool =
 
 proc chunkSize(t: TrackChunk): int =
   result = 8 + t.dataLength.mapIt(it.int).foldl(a+b)
+
+proc addMetaSeqNo*(t: var TrackChunk) =
+  t.data.add metaPrefix
+  t.data.add 0x0
+  t.data.add 0x2
+
+proc getMetaData(n: byte, s: string): seq[byte] =
+  result.add metaPrefix
+  result.add n
+  result.add s.len.byte
+  result.add s.mapIt(it.byte)
+
+proc addMetaText*(t: var TrackChunk, text: string) =
+  t.data.add getMetaData(0x1, text)
+
+proc addMetaCopyright*(t: var TrackChunk, copyright: string) =
+  t.data.add getMetaData(0x2, copyright)
+
+proc addMetaSeqTrackName*(t: var TrackChunk, trackName: string) =
+  t.data.add getMetaData(0x3, trackName)
+
+proc addMetaInstrumentName*(t: var TrackChunk, instrumentName: string) =
+  t.data.add getMetaData(0x4, instrumentName)
+
+proc addMetaLylic*(t: var TrackChunk, lylic: string) =
+  t.data.add getMetaData(0x5, lylic)
+
+proc addMetaEndOfTrack*(t: var TrackChunk) =
+  t.data.add metaPrefix
+  t.data.add 0x2F
+  t.data.add 0x0
+
+proc addMetaTempo*(t: var TrackChunk) =
+  discard
+
+proc addMetaTimeSignature*(t: var TrackChunk) =
+  discard
+
+proc addMetaKeySignature*(t: var TrackChunk) =
+  discard
 
 proc parseHeaderChunk(data: openArray[byte]): HeaderChunk =
   result.chunkType  = data[0..<4]   # 4byte
