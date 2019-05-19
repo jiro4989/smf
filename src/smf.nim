@@ -58,6 +58,7 @@
 ## * https://qiita.com/PianoScoreJP/items/2f03ae61d91db0334d45
 
 from algorithm import reverse
+from sequtils import mapIt
 import streams
 
 type
@@ -66,6 +67,9 @@ type
   TrackChunk = object
     chunkType, dataLength: seq[byte]
     sections: seq[seq[byte]]
+  SMF* = object
+    headerChunk: HeaderChunk
+    trackChunk: TrackChunk
   ChannelMessage* = array[3, byte]
   ChannelMessageType* = enum
     noteOn, noteOff, controlChange
@@ -81,6 +85,7 @@ const
   #   ## format0の時は01になる
   headerTimePart = @[0x00'u8, 0x01]
     ## 時間単位
+  headerChunkLength = 14 ## 14byte
 
   trackChunkType*: seq[byte] = @[0x4d'u8, 0x54, 0x72, 0x6b] ## MTrk
   trackDataLength: seq[byte] = @[] ## 4byte
@@ -113,13 +118,17 @@ proc parseTrackChunk*(data: openArray[byte]): TrackChunk =
   var part3 = startPos
   while part3+3 < len(data):
     let part = data[part3..<part3+3]
-    echo part
     if part == endOfTrack:
       result.sections.add data[startPos..<part3+3]
       part3 += 3
       startPos = part3
       continue
     inc part3
+
+proc readSMFFile*(path: string): SMF =
+  let data = readFile(path).mapIt(it.byte)
+  result.headerChunk = data.parseHeaderChunk
+  result.trackChunk = data[headerChunkLength..^1].parseTrackChunk
 
 proc toDeltaTime(n: int): seq[byte] = 
   ## 10進数をデルタタイムに変換する。

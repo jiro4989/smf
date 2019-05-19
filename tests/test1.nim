@@ -1,5 +1,5 @@
 import unittest
-import sequtils, strutils, streams
+import sequtils, strutils
 
 include smf
 
@@ -13,15 +13,19 @@ suite "isSMFFile":
   test "Not exist file":
     check "not_exist".isSMFFile == false
 
+let data = midiFile.readFile.mapIt(it.byte)
+
 suite "parseHeaderChunk":
   test "1":
-    var strm = newFileStream(midiFile)
-    defer: strm.close
+    echo data.parseHeaderChunk
 
-    var buf: array[1000, byte]
-    discard strm.readData(addr(buf), len(buf))
-    echo buf.parseHeaderChunk
-    echo buf[14..^1].parseTrackChunk
+suite "parseTrackChunk":
+  test "1":
+    echo data[headerChunkLength..^1].parseTrackChunk
+
+suite "readSMFFile":
+  test "1":
+    echo midiFile.readSMFFile
 
 suite "toDeltaTime":
   when false:
