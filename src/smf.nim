@@ -72,31 +72,21 @@ type
   SysEx* = byte
 
 const
-  ## Header chunk
-  ## ------------------------------------------------------------
-  headerChunkType: seq[byte] = @[0x4d'u8, 0x54, 0x68, 0x64]
-    ## "MThd
-  headerDataLength: seq[byte] = @[0x00'u8, 0x00, 0x00, 0x06]
-    ## 0006
-  headerDataFormat: seq[byte] = @[0x00'u8, 0x00]
-    ## 00 or 01 or 02
-  headerTrackCount: seq[byte] = @[0x00'u8, 0x01]
-    ## format0の時は01になる
-  headerTimePart: seq[byte] = @[0x00'u8, 0x01]
+  headerChunkType* = @[0x4d'u8, 0x54, 0x68, 0x64] ## MThd
+  headerDataLength* = @[0x00'u8, 0x00, 0x00, 0x06] ## 6
+  headerFormat0* = @[0x00'u8, 0x00] ## 00
+  headerFormat1* = @[0x00'u8, 0x01] ## 01
+  headerFormat2* = @[0x00'u8, 0x02] ## 02
+  # headerTrackCount* = @[0x00'u8, 0x01]
+  #   ## format0の時は01になる
+  headerTimePart = @[0x00'u8, 0x01]
     ## 時間単位
 
-  ## Track chunk
-  ## ------------------------------------------------------------
-  trackChunkType: seq[byte] = @[0x4d'u8, 0x54, 0x72, 0x6b]
-    ## 4byte
-    ## "MTrk" static
-  trackDataLength: seq[byte] = @[]
-    ## 4byte
-  trackDataBody: seq[byte] = @[]
-    ## from trackDataLength
+  trackChunkType*: seq[byte] = @[0x4d'u8, 0x54, 0x72, 0x6b] ## MTrk
+  trackDataLength: seq[byte] = @[] ## 4byte
   sysExF0: SysEx = 0xF0
-  sysExF7: SysEx = 0xf7
-  endOfTrack = @[0xFF'u8, 0x2F, 0x00]
+  sysExF7: SysEx = 0xF7
+  endOfTrack* = @[0xFF'u8, 0x2F, 0x00]
 
 proc isSMFFile*(path: string): bool =
   ## pathのファイルがSMFファイルであるかを判定する。
@@ -121,8 +111,9 @@ proc parseTrackChunk*(data: openArray[byte]): TrackChunk =
   result.dataLength = data[4..<8]   # 4byte
   var startPos = 8
   var part3 = startPos
-  while startPos < len(data):
+  while part3+3 < len(data):
     let part = data[part3..<part3+3]
+    echo part
     if part == endOfTrack:
       result.sections.add data[startPos..<part3+3]
       part3 += 3

@@ -18,9 +18,10 @@ suite "parseHeaderChunk":
     var strm = newFileStream(midiFile)
     defer: strm.close
 
-    var buf: array[100, byte]
+    var buf: array[1000, byte]
     discard strm.readData(addr(buf), len(buf))
     echo buf.parseHeaderChunk
+    echo buf[14..^1].parseTrackChunk
 
 suite "toDeltaTime":
   when false:

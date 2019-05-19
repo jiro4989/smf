@@ -9,11 +9,18 @@ smf is a library for SMF (Standard MIDI File).
 import smf
 
 var s = newSMF()
-s.add "1C"
-s.add "1D"
-s.add "1A"
-s.add "1B"
-s.add "1F"
+
+var track1 = newTrack()
+track1.add "3C"
+track1.add "3D"
+track1.add "3C"
+s.add track1
+
+var track2 = newTrack()
+track2.add "3C"
+track2.add "3D"
+track2.add "3C"
+s.add track2
 
 writeFile("a.smf", s)
 ----
