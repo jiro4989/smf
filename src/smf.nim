@@ -74,7 +74,8 @@ type
   Track = object
 
   HeaderChunk = object
-    chunkType, dataLength, format, trackCount, timePart: seq[byte]
+    chunkType, dataLength, format, trackCount: seq[byte]
+    timeUnit: uint16
   TrackChunk = object
     chunkType, dataLength, data: seq[byte]
   SMF* = object
@@ -84,6 +85,10 @@ type
   ChannelMessageType* = enum
     noteOn, noteOff, controlChange
   SysEx* = byte
+  MIDIEvent* = object
+    status*: byte
+    deltaTime*: uint32
+    channel*, note*, velocity*: byte
 
 const
   headerChunkType* = @[0x4d'u8, 0x54, 0x68, 0x64] ## MThd
@@ -93,7 +98,7 @@ const
   headerFormat2* = @[0x00'u8, 0x02] ## 02
   # headerTrackCount* = @[0x00'u8, 0x01]
   #   ## format0の時は01になる
-  headerTimePart = @[0x00'u8, 0x01]
+  headerTimeUnit = @[0x00'u8, 0x01]
     ## 時間単位
   headerChunkLength = 14 ## 14byte
 
@@ -103,6 +108,59 @@ const
   sysExF7: SysEx = 0xF7
   metaPrefix = 0xFF'u8
   endOfTrack* = @[metaPrefix, 0x2F, 0x00]
+
+  statusNoteOn*        = 0x80'u8
+  statusNoteOff*       = 0x90'u8
+  statusPKPresure*     = 0xA0'u8
+  statusControlChange* = 0xB0'u8
+  statusProgramChange* = 0xC0'u8
+  statusCKPresure*     = 0xD0'u8
+  statusPitchBend*     = 0xE0'u8
+
+proc toDeltaTime(n: uint32): seq[byte] = 
+  ## 10進数をデルタタイムに変換する。
+  ## デルタタイムは1byteのデータのうち、8bit目をデータが継続しているか、のフラグに使用する。
+  ## よって1byteで表現できるデータは127までになる。
+  ## 128のときは以下のようになる。
+  ##
+  ## 127             0b0111_1111
+  ## 128 0b1000_0001 0b0000_0000
+  if n <= 0:
+    return @[0'u8]
+  var m = n
+  var i: int
+  while 0'u32 < m:
+    var b = byte(m and 0b0111_1111)
+    if 0 < i:
+      b += 0b1000_0000
+    result.add b
+    m = m shr 7
+    inc i
+  result.reverse
+
+proc toBytes(n: uint16): seq[byte] =
+  if n <= 0: return @[0'u8]
+  var m = n
+  while 0'u16 < m:
+    let x = m and 255
+    result.add x.byte
+    m = m shr 8
+  result.reverse
+
+proc toUint16(n: seq[byte]): uint16 = (n[0].uint16 shl 8) + n[1].uint16
+
+proc newSMF*(format: seq[byte], timeUnit: uint16): SMF =
+  result.headerChunk = HeaderChunk(chunkType: headerChunkType,
+                                   dataLength: headerDataLength,
+                                   format: format,
+                                   timeUnit: timeUnit)
+
+proc newMIDITrack*(): Track = discard
+
+proc newMIDIEvent*(deltaTime: uint32, status, channel, note, velocity: byte): MIDIEvent =
+  discard
+
+proc newMetaEvent*(): Track = discard
 
 proc isSMFFile*(path: string): bool =
   ## pathのファイルがSMFファイルであるかを判定する。
@@ -158,16 +216,39 @@ proc addMetaTimeSignature*(t: var TrackChunk) =
 proc addMetaKeySignature*(t: var TrackChunk) =
   discard
 
+proc newChannelMessage(t: ChannelMessageType,
+                       channelNo, noteNo, velocity: byte): ChannelMessage =
+  result = case t
+           of noteOn: [8'u8 + channelNo, noteNo, velocity]
+           of noteOff: [9'u8 + channelNo, noteNo, velocity]
+           of controlChange: [0xB'u8 + channelNo, noteNo, velocity]
+
+proc toBytes(h: HeaderChunk): seq[byte] =
+  result.add h.chunkType
+  result.add h.dataLength
+  result.add h.format
+  result.add h.trackCount
+  result.add h.timeUnit.toBytes
+
+proc toBytes(t: TrackChunk): seq[byte] =
+  result.add t.chunkType
+  result.add t.dataLength
+
+proc toBytes(s: SMF): seq[byte] =
+  result.add s.headerChunk.toBytes
+  for t in s.trackChunks:
+    result.add t.toBytes
+
 proc parseHeaderChunk(data: openArray[byte]): HeaderChunk =
-  result.chunkType  = data[0..<4]   # 4byte
-  result.dataLength = data[4..<8]   # 4byte
-  result.format     = data[8..<10]  # 2byte
-  result.trackCount = data[10..<12] # 2byte
-  result.timePart   = data[12..<14] # 2byte
+  result.chunkType  = data[0..<4]            # 4byte
+  result.dataLength = data[4..<8]            # 4byte
+  result.format     = data[8..<10]           # 2byte
+  result.trackCount = data[10..<12]          # 2byte
+  result.timeUnit   = data[12..<14].toUint16 # 2byte
 
 proc parseTrackChunk(data: openArray[byte]): TrackChunk =
-  result.chunkType  = data[0..<4]   # 4byte
-  result.dataLength = data[4..<8]   # 4byte
+  result.chunkType  = data[0..<4] # 4byte
+  result.dataLength = data[4..<8] # 4byte
   var startPos = 8
   var part3 = startPos
   while part3+3 <= len(data):
@@ -176,6 +257,9 @@ proc parseTrackChunk(data: openArray[byte]): TrackChunk =
       result.data = data[startPos..<part3+3]
       return
     inc part3
+
+proc readSMF*(f: File): SMF =
+  discard
 
 proc readSMFFile*(path: string): SMF =
   var data = readFile(path).mapIt(it.byte)
@@ -187,30 +271,12 @@ proc readSMFFile*(path: string): SMF =
     result.trackChunks.add track
     data = data[track.chunkSize..^1]
 
-proc toDeltaTime(n: int): seq[byte] = 
-  ## 10進数をデルタタイムに変換する。
-  ## デルタタイムは1byteのデータのうち、8bit目をデータが継続しているか、のフラグに使用する。
-  ## よって1byteで表現できるデータは127までになる。
-  ## 128のときは以下のようになる。
-  ##
-  ## 127             0b0111_1111
-  ## 128 0b1000_0001 0b0000_0000
-  if n <= 0:
-    return @[0'u8]
-  var m = n
-  var i: int
-  while 0 < m:
-    var b = byte(m and 0b0111_1111)
-    if 0 < i:
-      b += 0b1000_0000
-    result.add b
-    m = m shr 7
-    inc i
-  result.reverse
-
-proc newChannelMessage(t: ChannelMessageType,
-                       channelNo, noteNo, velocity: byte): ChannelMessage =
-  result = case t
-           of noteOn: [8'u8 + channelNo, noteNo, velocity]
-           of noteOff: [9'u8 + channelNo, noteNo, velocity]
-           of controlChange: [0xB'u8 + channelNo, noteNo, velocity]
+proc writeSMF*(f: File, data: SMF) =
+  let d = data.toBytes
+  discard f.writeBytes(d, 0, d.len)
+  
+proc writeSMFFile*(path: string, data: SMF) =
+  var f = open(path, fmWrite)
+  defer: f.close
+  f.writeSMF(data)
+  

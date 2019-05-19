@@ -5,13 +5,25 @@ include smf
 
 const midiFile = "tests/test.mid"
 
+suite "toBytes":
+  test "0 == 0": check 0.toBytes == @[0x0'u8]
+  test "1 == 1": check 1.toBytes == @[0x1'u8]
+  test "15 == F": check 15.toBytes == @[0xF'u8]
+  test "255 == FF": check 255.toBytes == @[0xFF'u8]
+  test "256 == 1 0": check 256.toBytes == @[0x1'u8, 0]
+  test "65535 == FF FF": check 65535.toBytes == @[0xFF'u8, 0xFF]
+
+suite "toUint16":
+  test "0 0 == 0": check @[0'u8, 0].toUint16 == 0
+  test "0 1 == 1": check @[0'u8, 1].toUint16 == 1
+  test "0 FF == 255": check @[0'u8, 0xFF].toUint16 == 255
+  test "1 0 == 256": check @[1'u8, 0].toUint16 == 256
+  test "FF FF == 65535": check @[0xFF'u8, 0xFF].toUint16 == 65535
+
 suite "isSMFFile":
-  test "SMF file":
-    check midiFile.isSMFFile
-  test "Not SMF file":
-    check "smf.nimble".isSMFFile == false
-  test "Not exist file":
-    check "not_exist".isSMFFile == false
+  test "SMF file": check midiFile.isSMFFile
+  test "Not SMF file": check "smf.nimble".isSMFFile == false
+  test "Not exist file": check "not_exist".isSMFFile == false
 
 let data = midiFile.readFile.mapIt(it.byte)
 
