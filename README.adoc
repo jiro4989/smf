@@ -10,17 +10,8 @@ import smf
 
 var s = newSMF()
 
-var track1 = newTrack()
-track1.add "3C"
-track1.add "3D"
-track1.add "3C"
-s.add track1
-
-var track2 = newTrack()
-track2.add "3C"
-track2.add "3D"
-track2.add "3C"
-s.add track2
+var midiEvent1 = newMIDIEvent(0, statusOn)
+s.add midiEvent1
 
 writeFile("a.smf", s)
 ----

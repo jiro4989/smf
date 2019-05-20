@@ -35,9 +35,9 @@ suite "parseTrackChunk":
   test "1":
     echo data[headerChunkLength..^1].parseTrackChunk
 
-suite "readSMFFile":
-  test "1":
-    echo midiFile.readSMFFile
+# suite "readSMFFile":
+#   test "1":
+#     echo midiFile.readSMFFile
 
 suite "toDeltaTime":
   when false:
