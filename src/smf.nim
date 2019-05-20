@@ -65,6 +65,7 @@
 ## See also:
 ## * http://maruyama.breadfish.jp/tech/smf/
 ## * https://qiita.com/PianoScoreJP/items/2f03ae61d91db0334d45
+## * https://www.g200kg.com/jp/docs/tech/smf.html
 
 from algorithm import reverse
 from sequtils import mapIt, foldl
@@ -94,18 +95,14 @@ type
     headerChunk: HeaderChunk
     trackChunks: seq[TrackChunk]
 
-  ChannelMessage* = array[3, byte]
-  ChannelMessageType* = enum
-    noteOn, noteOff, controlChange
   SysEx* = byte
 
 const
   headerChunkType* = @[0x4d'u8, 0x54, 0x68, 0x64] ## MThd
   headerDataLength* = 6
-  #headerDataLength* = @[0x00'u8, 0x00, 0x00, 0x06] ## 6
-  headerFormat0* = @[0x00'u8, 0x00] ## 00
-  headerFormat1* = @[0x00'u8, 0x01] ## 01
-  headerFormat2* = @[0x00'u8, 0x02] ## 02
+  format0* = @[0x00'u8, 0x00] ## 00
+  format1* = @[0x00'u8, 0x01] ## 01
+  format2* = @[0x00'u8, 0x02] ## 02
   # headerTrackCount* = @[0x00'u8, 0x01]
   #   ## format0の時は01になる
   headerTimeUnit = @[0x00'u8, 0x01]
@@ -130,6 +127,12 @@ const
 # ------------------------------------------------------------------------------
 #   utilities
 # ------------------------------------------------------------------------------
+
+proc padZero(data: openArray[byte], n: int): seq[byte] = 
+  result.add data
+  let diff = n - len(data)
+  for i in 1..diff:
+    result.insert(0, 0)
 
 proc toDeltaTime(n: uint32): seq[byte] = 
   ## 10進数をデルタタイムに変換する。
@@ -177,9 +180,9 @@ method toBytes(event: MetaEvent): seq[byte] =
 
 proc toBytes(h: HeaderChunk): seq[byte] =
   result.add h.chunkType
-  result.add h.dataLength.toBytes
+  result.add h.dataLength.toBytes.padZero(4)
   result.add h.format
-  result.add h.trackCount.toBytes
+  result.add h.trackCount.toBytes.padZero(2)
   result.add h.timeUnit.toBytes
 
 proc toBytes(t: TrackChunk): seq[byte] =

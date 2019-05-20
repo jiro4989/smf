@@ -5,6 +5,20 @@ include smf
 
 const midiFile = "tests/test.mid"
 
+suite "toBytes(HeaderChunk)":
+  test "Normal":
+    let c = HeaderChunk(chunkType: headerChunkType,
+                        dataLength: headerDataLength,
+                        format: format1,
+                        trackCount: 2,
+                        timeUnit: 0x0180)
+    var ret = headerChunkType
+    ret.add @[0'u8, 0, 0, 6]
+    ret.add format1
+    ret.add @[0'u8, 2]
+    ret.add @[0x01'u8, 0x80]
+    check c.toBytes == ret
+
 suite "toBytes":
   test "0 == 0": check 0.toBytes == @[0x0'u8]
   test "1 == 1": check 1.toBytes == @[0x1'u8]
@@ -28,12 +42,21 @@ suite "isSMFFile":
 let data = midiFile.readFile.mapIt(it.byte)
 
 suite "parseHeaderChunk":
-  test "1":
-    echo data.parseHeaderChunk
+  test "Normal":
+    let c = HeaderChunk(chunkType: headerChunkType,
+                        dataLength: headerDataLength,
+                        format: format1,
+                        trackCount: 2,
+                        timeUnit: 0x0180)
+    check data.parseHeaderChunk == c
 
-suite "parseTrackChunk":
-  test "1":
-    echo data[headerChunkLength..^1].parseTrackChunk
+# suite "parseTrackChunk":
+#   test "Normal":
+#     let t = TrackChunk(chunkType: trackChunkType,
+#                        dataLength: 1,
+#                        data: @[],
+#                        endOfTrack: endOfTrack)
+#     check data[headerChunkLength..^1].parseTrackChunk == t
 
 # suite "readSMFFile":
 #   test "1":

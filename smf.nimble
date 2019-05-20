@@ -15,3 +15,6 @@ task examples, "Run example code":
   withDir "examples/write_file":
     exec "nim c -d:release main.nim"
     exec "./main"
+
+task docs, "Generate documents":
+  exec "nimble doc src/smf.nim -o:docs/smf.html"
