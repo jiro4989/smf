@@ -160,8 +160,7 @@ method toBytes(event: Event): seq[byte] {.base.} = discard
 
 method toBytes(event: MIDIEvent): seq[byte] =
   result.add event.deltaTime.toDeltaTime
-  result.add event.status
-  result.add event.channel
+  result.add event.status + event.channel
   result.add event.note
   result.add event.velocity
 
