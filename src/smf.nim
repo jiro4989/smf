@@ -238,13 +238,6 @@ proc isSMFFile*(path: string): bool =
   discard strm.readData(addr(buf), len(buf))
   result = buf == headerChunkType
 
-proc newChannelMessage(t: ChannelMessageType,
-                       channelNo, noteNo, velocity: byte): ChannelMessage =
-  result = case t
-           of noteOn: [8'u8 + channelNo, noteNo, velocity]
-           of noteOff: [9'u8 + channelNo, noteNo, velocity]
-           of controlChange: [0xB'u8 + channelNo, noteNo, velocity]
-
 # ------------------------------------------------------------------------------
 #   read/write file
 # ------------------------------------------------------------------------------
