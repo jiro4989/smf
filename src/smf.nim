@@ -95,24 +95,16 @@ type
     headerChunk: HeaderChunk
     trackChunks: seq[TrackChunk]
 
-  SysEx* = byte
-
 const
   headerChunkType* = @[0x4d'u8, 0x54, 0x68, 0x64] ## MThd
   headerDataLength* = 6
   format0* = @[0x00'u8, 0x00] ## 00
   format1* = @[0x00'u8, 0x01] ## 01
   format2* = @[0x00'u8, 0x02] ## 02
-  # headerTrackCount* = @[0x00'u8, 0x01]
-  #   ## format0の時は01になる
-  headerTimeUnit = @[0x00'u8, 0x01]
-    ## 時間単位
-  headerChunkLength = 14 ## 14byte
+  headerChunkLength = 14      ## 14byte
 
   trackChunkType*: seq[byte] = @[0x4d'u8, 0x54, 0x72, 0x6b] ## MTrk
   trackDataLength: seq[byte] = @[] ## 4byte
-  sysExF0: SysEx = 0xF0
-  sysExF7: SysEx = 0xF7
   metaPrefix = 0xFF'u8
   endOfTrack* = @[metaPrefix, 0x2F, 0x00]
 
