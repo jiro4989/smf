@@ -108,13 +108,30 @@ const
   metaPrefix = 0xFF'u8
   endOfTrack* = @[metaPrefix, 0x2F, 0x00]
 
-  statusNoteOn*        = 0x80'u8
-  statusNoteOff*       = 0x90'u8
+  statusNoteOff*       = 0x80'u8
+  statusNoteOn*        = 0x90'u8
   statusPKPresure*     = 0xA0'u8
   statusControlChange* = 0xB0'u8
   statusProgramChange* = 0xC0'u8
   statusCKPresure*     = 0xD0'u8
   statusPitchBend*     = 0xE0'u8
+
+  metaSequenceNumber*    = 0x00'u8
+  metaText*              = 0x01'u8
+  metaCopyrightNotice*   = 0x02'u8
+  metaSequenceTrackName* = 0x03'u8
+  metaInstrumentName*    = 0x04'u8
+  metaLyric*             = 0x05'u8
+  metaMarker*            = 0x06'u8
+  metaCuePoint*          = 0x07'u8
+  metaMIDIChannelPrefix* = 0x20'u8
+  metaMIDIPort*          = 0x21'u8
+  metaEndOfTrack*        = 0x2F'u8
+  metaSetTempo*          = 0x51'u8
+  metaSMTPEOffset*       = 0x54'u8
+  metaTimeSignature*     = 0x58'u8
+  metaKeySignature*      = 0x59'u8
+  metaSequencerSpecific* = 0x7F'u8
 
 # ------------------------------------------------------------------------------
 #   utilities
@@ -257,6 +274,7 @@ proc parseTrackChunk(data: openArray[byte]): TrackChunk =
     inc part3
 
 proc readSMF*(f: File): SMF =
+  # TODO
   discard
 
 proc readSMFFile*(path: string): SMF =
