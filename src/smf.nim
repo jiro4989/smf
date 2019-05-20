@@ -187,7 +187,7 @@ proc toBytes(h: HeaderChunk): seq[byte] =
 
 proc toBytes(t: TrackChunk): seq[byte] =
   result.add t.chunkType
-  result.add t.dataLength.toBytes
+  result.add t.dataLength.toBytes.padZero(4)
   for event in t.data:
     result.add event.toBytes
   result.add t.endOfTrack
