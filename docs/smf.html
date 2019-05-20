@@ -1259,13 +1259,6 @@ function main() {
     title="SMF = object
   headerChunk: HeaderChunk
   trackChunks: seq[TrackChunk]"><wbr />SMF<span class="attachedType" style="visibility:hidden"></span></a></li>
-  <li><a class="reference" href="#ChannelMessage"
-    title="ChannelMessage = array[3, byte]"><wbr />Channel<wbr />Message<span class="attachedType" style="visibility:hidden"></span></a></li>
-  <li><a class="reference" href="#ChannelMessageType"
-    title="ChannelMessageType = enum
-  noteOn, noteOff, controlChange"><wbr />Channel<wbr />Message<wbr />Type<span class="attachedType" style="visibility:hidden"></span></a></li>
-  <li><a class="reference" href="#SysEx"
-    title="SysEx = byte"><wbr />Sys<wbr />Ex<span class="attachedType" style="visibility:hidden"></span></a></li>
 
   </ul>
 </li>
@@ -1276,20 +1269,20 @@ function main() {
     title="headerChunkType = [0x4D&#x27;u8, 84, 104, 100]"><wbr />header<wbr />Chunk<wbr />Type<span class="attachedType" style="visibility:hidden"></span></a></li>
   <li><a class="reference" href="#headerDataLength"
     title="headerDataLength = 6"><wbr />header<wbr />Data<wbr />Length<span class="attachedType" style="visibility:hidden"></span></a></li>
-  <li><a class="reference" href="#headerFormat0"
-    title="headerFormat0 = [0x00&#x27;u8, 0]"><wbr />header<wbr />Format0<span class="attachedType" style="visibility:hidden"></span></a></li>
-  <li><a class="reference" href="#headerFormat1"
-    title="headerFormat1 = [0x00&#x27;u8, 1]"><wbr />header<wbr />Format1<span class="attachedType" style="visibility:hidden"></span></a></li>
-  <li><a class="reference" href="#headerFormat2"
-    title="headerFormat2 = [0x00&#x27;u8, 2]"><wbr />header<wbr />Format2<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#format0"
+    title="format0 = [0x00&#x27;u8, 0]"><wbr />format0<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#format1"
+    title="format1 = [0x00&#x27;u8, 1]"><wbr />format1<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#format2"
+    title="format2 = [0x00&#x27;u8, 2]"><wbr />format2<span class="attachedType" style="visibility:hidden"></span></a></li>
   <li><a class="reference" href="#trackChunkType"
     title="trackChunkType: seq[byte] = [0x4D&#x27;u8, 84, 114, 107]"><wbr />track<wbr />Chunk<wbr />Type<span class="attachedType" style="visibility:hidden"></span></a></li>
   <li><a class="reference" href="#endOfTrack"
     title="endOfTrack = [0xFF&#x27;u8, 47, 0]"><wbr />end<wbr />Of<wbr />Track<span class="attachedType" style="visibility:hidden"></span></a></li>
-  <li><a class="reference" href="#statusNoteOn"
-    title="statusNoteOn = 0x80&#x27;u8"><wbr />status<wbr />Note<wbr />On<span class="attachedType" style="visibility:hidden"></span></a></li>
   <li><a class="reference" href="#statusNoteOff"
-    title="statusNoteOff = 0x90&#x27;u8"><wbr />status<wbr />Note<wbr />Off<span class="attachedType" style="visibility:hidden"></span></a></li>
+    title="statusNoteOff = 0x80&#x27;u8"><wbr />status<wbr />Note<wbr />Off<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#statusNoteOn"
+    title="statusNoteOn = 0x90&#x27;u8"><wbr />status<wbr />Note<wbr />On<span class="attachedType" style="visibility:hidden"></span></a></li>
   <li><a class="reference" href="#statusPKPresure"
     title="statusPKPresure = 0xA0&#x27;u8"><wbr />status<wbr />PKPresure<span class="attachedType" style="visibility:hidden"></span></a></li>
   <li><a class="reference" href="#statusControlChange"
@@ -1300,6 +1293,38 @@ function main() {
     title="statusCKPresure = 0xD0&#x27;u8"><wbr />status<wbr />CKPresure<span class="attachedType" style="visibility:hidden"></span></a></li>
   <li><a class="reference" href="#statusPitchBend"
     title="statusPitchBend = 0xE0&#x27;u8"><wbr />status<wbr />Pitch<wbr />Bend<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#metaSequenceNumber"
+    title="metaSequenceNumber = 0x00&#x27;u8"><wbr />meta<wbr />Sequence<wbr />Number<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#metaText"
+    title="metaText = 0x01&#x27;u8"><wbr />meta<wbr />Text<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#metaCopyrightNotice"
+    title="metaCopyrightNotice = 0x02&#x27;u8"><wbr />meta<wbr />Copyright<wbr />Notice<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#metaSequenceTrackName"
+    title="metaSequenceTrackName = 0x03&#x27;u8"><wbr />meta<wbr />Sequence<wbr />Track<wbr />Name<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#metaInstrumentName"
+    title="metaInstrumentName = 0x04&#x27;u8"><wbr />meta<wbr />Instrument<wbr />Name<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#metaLyric"
+    title="metaLyric = 0x05&#x27;u8"><wbr />meta<wbr />Lyric<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#metaMarker"
+    title="metaMarker = 0x06&#x27;u8"><wbr />meta<wbr />Marker<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#metaCuePoint"
+    title="metaCuePoint = 0x07&#x27;u8"><wbr />meta<wbr />Cue<wbr />Point<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#metaMIDIChannelPrefix"
+    title="metaMIDIChannelPrefix = 0x20&#x27;u8"><wbr />meta<wbr />MIDIChannel<wbr />Prefix<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#metaMIDIPort"
+    title="metaMIDIPort = 0x21&#x27;u8"><wbr />meta<wbr />MIDIPort<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#metaEndOfTrack"
+    title="metaEndOfTrack = 0x2F&#x27;u8"><wbr />meta<wbr />End<wbr />Of<wbr />Track<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#metaSetTempo"
+    title="metaSetTempo = 0x51&#x27;u8"><wbr />meta<wbr />Set<wbr />Tempo<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#metaSMTPEOffset"
+    title="metaSMTPEOffset = 0x54&#x27;u8"><wbr />meta<wbr />SMTPEOffset<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#metaTimeSignature"
+    title="metaTimeSignature = 0x58&#x27;u8"><wbr />meta<wbr />Time<wbr />Signature<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#metaKeySignature"
+    title="metaKeySignature = 0x59&#x27;u8"><wbr />meta<wbr />Key<wbr />Signature<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#metaSequencerSpecific"
+    title="metaSequencerSpecific = 0x7F&#x27;u8"><wbr />meta<wbr />Sequencer<wbr />Specific<span class="attachedType" style="visibility:hidden"></span></a></li>
 
   </ul>
 </li>
@@ -1388,6 +1413,7 @@ function main() {
 <p>See also:</p>
 <ul class="simple"><li><a class="reference external" href="http://maruyama.breadfish.jp/tech/smf">http://maruyama.breadfish.jp/tech/smf</a>/</li>
 <li><a class="reference external" href="https://qiita.com/PianoScoreJP/items/2f03ae61d91db0334d45">https://qiita.com/PianoScoreJP/items/2f03ae61d91db0334d45</a></li>
+<li><a class="reference external" href="https://www.g200kg.com/jp/docs/tech/smf.html">https://www.g200kg.com/jp/docs/tech/smf.html</a></li>
 </ul>
 </p>
   <div class="section" id="7">
@@ -1428,25 +1454,6 @@ function main() {
 
 
 </dd>
-<a id="ChannelMessage"></a>
-<dt><pre><a href="smf.html#ChannelMessage"><span class="Identifier">ChannelMessage</span></a> <span class="Other">=</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">3</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span></pre></dt>
-<dd>
-
-
-</dd>
-<a id="ChannelMessageType"></a>
-<dt><pre><a href="smf.html#ChannelMessageType"><span class="Identifier">ChannelMessageType</span></a> <span class="Other">=</span> <span class="Keyword">enum</span>
-  <span class="Identifier">noteOn</span><span class="Other">,</span> <span class="Identifier">noteOff</span><span class="Other">,</span> <span class="Identifier">controlChange</span></pre></dt>
-<dd>
-
-
-</dd>
-<a id="SysEx"></a>
-<dt><pre><a href="smf.html#SysEx"><span class="Identifier">SysEx</span></a> <span class="Other">=</span> <span class="Identifier">byte</span></pre></dt>
-<dd>
-
-
-</dd>
 
 </dl></div>
 <div class="section" id="10">
@@ -1464,20 +1471,20 @@ MThd
 
 
 </dd>
-<a id="headerFormat0"></a>
-<dt><pre><span class="Identifier">headerFormat0</span> <span class="Other">=</span> <span class="Other">[</span><span class="DecNumber">0x00'u8</span><span class="Other">,</span> <span class="DecNumber">0</span><span class="Other">]</span></pre></dt>
+<a id="format0"></a>
+<dt><pre><span class="Identifier">format0</span> <span class="Other">=</span> <span class="Other">[</span><span class="DecNumber">0x00'u8</span><span class="Other">,</span> <span class="DecNumber">0</span><span class="Other">]</span></pre></dt>
 <dd>
 00
 
 </dd>
-<a id="headerFormat1"></a>
-<dt><pre><span class="Identifier">headerFormat1</span> <span class="Other">=</span> <span class="Other">[</span><span class="DecNumber">0x00'u8</span><span class="Other">,</span> <span class="DecNumber">1</span><span class="Other">]</span></pre></dt>
+<a id="format1"></a>
+<dt><pre><span class="Identifier">format1</span> <span class="Other">=</span> <span class="Other">[</span><span class="DecNumber">0x00'u8</span><span class="Other">,</span> <span class="DecNumber">1</span><span class="Other">]</span></pre></dt>
 <dd>
 01
 
 </dd>
-<a id="headerFormat2"></a>
-<dt><pre><span class="Identifier">headerFormat2</span> <span class="Other">=</span> <span class="Other">[</span><span class="DecNumber">0x00'u8</span><span class="Other">,</span> <span class="DecNumber">2</span><span class="Other">]</span></pre></dt>
+<a id="format2"></a>
+<dt><pre><span class="Identifier">format2</span> <span class="Other">=</span> <span class="Other">[</span><span class="DecNumber">0x00'u8</span><span class="Other">,</span> <span class="DecNumber">2</span><span class="Other">]</span></pre></dt>
 <dd>
 02
 
@@ -1494,14 +1501,14 @@ MTrk
 
 
 </dd>
-<a id="statusNoteOn"></a>
-<dt><pre><span class="Identifier">statusNoteOn</span> <span class="Other">=</span> <span class="DecNumber">0x80'u8</span></pre></dt>
+<a id="statusNoteOff"></a>
+<dt><pre><span class="Identifier">statusNoteOff</span> <span class="Other">=</span> <span class="DecNumber">0x80'u8</span></pre></dt>
 <dd>
 
 
 </dd>
-<a id="statusNoteOff"></a>
-<dt><pre><span class="Identifier">statusNoteOff</span> <span class="Other">=</span> <span class="DecNumber">0x90'u8</span></pre></dt>
+<a id="statusNoteOn"></a>
+<dt><pre><span class="Identifier">statusNoteOn</span> <span class="Other">=</span> <span class="DecNumber">0x90'u8</span></pre></dt>
 <dd>
 
 
@@ -1532,6 +1539,102 @@ MTrk
 </dd>
 <a id="statusPitchBend"></a>
 <dt><pre><span class="Identifier">statusPitchBend</span> <span class="Other">=</span> <span class="DecNumber">0xE0'u8</span></pre></dt>
+<dd>
+
+
+</dd>
+<a id="metaSequenceNumber"></a>
+<dt><pre><span class="Identifier">metaSequenceNumber</span> <span class="Other">=</span> <span class="DecNumber">0x00'u8</span></pre></dt>
+<dd>
+
+
+</dd>
+<a id="metaText"></a>
+<dt><pre><span class="Identifier">metaText</span> <span class="Other">=</span> <span class="DecNumber">0x01'u8</span></pre></dt>
+<dd>
+
+
+</dd>
+<a id="metaCopyrightNotice"></a>
+<dt><pre><span class="Identifier">metaCopyrightNotice</span> <span class="Other">=</span> <span class="DecNumber">0x02'u8</span></pre></dt>
+<dd>
+
+
+</dd>
+<a id="metaSequenceTrackName"></a>
+<dt><pre><span class="Identifier">metaSequenceTrackName</span> <span class="Other">=</span> <span class="DecNumber">0x03'u8</span></pre></dt>
+<dd>
+
+
+</dd>
+<a id="metaInstrumentName"></a>
+<dt><pre><span class="Identifier">metaInstrumentName</span> <span class="Other">=</span> <span class="DecNumber">0x04'u8</span></pre></dt>
+<dd>
+
+
+</dd>
+<a id="metaLyric"></a>
+<dt><pre><span class="Identifier">metaLyric</span> <span class="Other">=</span> <span class="DecNumber">0x05'u8</span></pre></dt>
+<dd>
+
+
+</dd>
+<a id="metaMarker"></a>
+<dt><pre><span class="Identifier">metaMarker</span> <span class="Other">=</span> <span class="DecNumber">0x06'u8</span></pre></dt>
+<dd>
+
+
+</dd>
+<a id="metaCuePoint"></a>
+<dt><pre><span class="Identifier">metaCuePoint</span> <span class="Other">=</span> <span class="DecNumber">0x07'u8</span></pre></dt>
+<dd>
+
+
+</dd>
+<a id="metaMIDIChannelPrefix"></a>
+<dt><pre><span class="Identifier">metaMIDIChannelPrefix</span> <span class="Other">=</span> <span class="DecNumber">0x20'u8</span></pre></dt>
+<dd>
+
+
+</dd>
+<a id="metaMIDIPort"></a>
+<dt><pre><span class="Identifier">metaMIDIPort</span> <span class="Other">=</span> <span class="DecNumber">0x21'u8</span></pre></dt>
+<dd>
+
+
+</dd>
+<a id="metaEndOfTrack"></a>
+<dt><pre><span class="Identifier">metaEndOfTrack</span> <span class="Other">=</span> <span class="DecNumber">0x2F'u8</span></pre></dt>
+<dd>
+
+
+</dd>
+<a id="metaSetTempo"></a>
+<dt><pre><span class="Identifier">metaSetTempo</span> <span class="Other">=</span> <span class="DecNumber">0x51'u8</span></pre></dt>
+<dd>
+
+
+</dd>
+<a id="metaSMTPEOffset"></a>
+<dt><pre><span class="Identifier">metaSMTPEOffset</span> <span class="Other">=</span> <span class="DecNumber">0x54'u8</span></pre></dt>
+<dd>
+
+
+</dd>
+<a id="metaTimeSignature"></a>
+<dt><pre><span class="Identifier">metaTimeSignature</span> <span class="Other">=</span> <span class="DecNumber">0x58'u8</span></pre></dt>
+<dd>
+
+
+</dd>
+<a id="metaKeySignature"></a>
+<dt><pre><span class="Identifier">metaKeySignature</span> <span class="Other">=</span> <span class="DecNumber">0x59'u8</span></pre></dt>
+<dd>
+
+
+</dd>
+<a id="metaSequencerSpecific"></a>
+<dt><pre><span class="Identifier">metaSequencerSpecific</span> <span class="Other">=</span> <span class="DecNumber">0x7F'u8</span></pre></dt>
 <dd>
 
 
@@ -1621,7 +1724,7 @@ pathのファイルがSMFファイルであるかを判定する。 先頭4byte�
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small>Made with Nim. Generated: 2019-05-20 07:21:31 UTC</small>
+        <small>Made with Nim. Generated: 2019-05-20 14:51:34 UTC</small>
       </div>
     </div>
   </div>
