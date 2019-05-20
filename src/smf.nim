@@ -71,24 +71,31 @@ from sequtils import mapIt, foldl
 import streams
 
 type
-  Track = object
+  Event* = ref object of RootObj
+  MIDIEvent* = ref object of Event
+    deltaTime*: uint32
+    status*: byte
+    channel*, note*, velocity*: byte
+  MetaEvent* = ref object of Event
+    deltaTime: uint32
+    metaType: byte
+    data: seq[byte]
 
   HeaderChunk = object
-    chunkType, dataLength, format, trackCount: seq[byte]
+    chunkType, dataLength, format: seq[byte]
+    trackCount: uint16
     timeUnit: uint16
   TrackChunk = object
-    chunkType, dataLength, data: seq[byte]
+    chunkType, dataLength: seq[byte]
+    data: seq[Event]
   SMF* = object
     headerChunk: HeaderChunk
     trackChunks: seq[TrackChunk]
+
   ChannelMessage* = array[3, byte]
   ChannelMessageType* = enum
     noteOn, noteOff, controlChange
   SysEx* = byte
-  MIDIEvent* = object
-    status*: byte
-    deltaTime*: uint32
-    channel*, note*, velocity*: byte
 
 const
   headerChunkType* = @[0x4d'u8, 0x54, 0x68, 0x64] ## MThd
@@ -116,6 +123,10 @@ const
   statusProgramChange* = 0xC0'u8
   statusCKPresure*     = 0xD0'u8
   statusPitchBend*     = 0xE0'u8
+
+# ------------------------------------------------------------------------------
+#   utilities
+# ------------------------------------------------------------------------------
 
 proc toDeltaTime(n: uint32): seq[byte] = 
   ## 10進数をデルタタイムに変換する。
@@ -147,7 +158,44 @@ proc toBytes(n: uint16): seq[byte] =
     m = m shr 8
   result.reverse
 
+method toBytes(event: Event): seq[byte] = discard
+
+method toBytes(event: MIDIEvent): seq[byte] =
+  result.add event.deltaTime.toDeltaTime
+  result.add event.status
+  result.add event.channel
+  result.add event.note
+  result.add event.velocity
+
+method toBytes(event: MetaEvent): seq[byte] =
+  result.add event.deltaTime.toDeltaTime
+  result.add event.metaType
+  result.add event.data
+
+proc toBytes(h: HeaderChunk): seq[byte] =
+  result.add h.chunkType
+  result.add h.dataLength
+  result.add h.format
+  result.add h.trackCount.toBytes
+  result.add h.timeUnit.toBytes
+
+proc toBytes(t: TrackChunk): seq[byte] =
+  result.add t.chunkType
+  result.add t.dataLength
+  for event in t.data:
+    result.add event.toBytes
+    result.add endOfTrack
+
+proc toBytes(s: SMF): seq[byte] =
+  result.add s.headerChunk.toBytes
+  for t in s.trackChunks:
+    result.add t.toBytes
+
 proc toUint16(n: seq[byte]): uint16 = (n[0].uint16 shl 8) + n[1].uint16
+
+# ------------------------------------------------------------------------------
+#   public procedures
+# ------------------------------------------------------------------------------
 
 proc newSMF*(format: seq[byte], timeUnit: uint16): SMF =
   result.headerChunk = HeaderChunk(chunkType: headerChunkType,
@@ -155,12 +203,18 @@ proc newSMF*(format: seq[byte], timeUnit: uint16): SMF =
                                    format: format,
                                    timeUnit: timeUnit)
 
-proc newMIDITrack*(): Track = discard
-
 proc newMIDIEvent*(deltaTime: uint32, status, channel, note, velocity: byte): MIDIEvent =
-  discard
+  result = MIDIEvent(deltaTime: deltaTime, status: status,
+                     channel: channel, note: note, velocity: velocity)
 
-proc newMetaEvent*(): Track = discard
+proc newMetaEvent*(deltaTime: uint32, metaType: byte, data: seq[byte]): MetaEvent =
+  result = MetaEvent(deltaTime: deltaTime, metaType: metaType, data: data)
+
+proc add*(self: var SMF, track: TrackChunk) =
+  self.trackChunks.add track
+  self.headerChunk.trackCount.inc
+
+proc add*(self: var TrackChunk, event: MIDIEvent) = self.data.add event
 
 proc isSMFFile*(path: string): bool =
   ## pathのファイルがSMFファイルであるかを判定する。
@@ -176,46 +230,6 @@ proc isSMFFile*(path: string): bool =
 proc chunkSize(t: TrackChunk): int =
   result = 8 + t.dataLength.mapIt(it.int).foldl(a+b)
 
-proc addMetaSeqNo*(t: var TrackChunk) =
-  t.data.add metaPrefix
-  t.data.add 0x0
-  t.data.add 0x2
-
-proc getMetaData(n: byte, s: string): seq[byte] =
-  result.add metaPrefix
-  result.add n
-  result.add s.len.byte
-  result.add s.mapIt(it.byte)
-
-proc addMetaText*(t: var TrackChunk, text: string) =
-  t.data.add getMetaData(0x1, text)
-
-proc addMetaCopyright*(t: var TrackChunk, copyright: string) =
-  t.data.add getMetaData(0x2, copyright)
-
-proc addMetaSeqTrackName*(t: var TrackChunk, trackName: string) =
-  t.data.add getMetaData(0x3, trackName)
-
-proc addMetaInstrumentName*(t: var TrackChunk, instrumentName: string) =
-  t.data.add getMetaData(0x4, instrumentName)
-
-proc addMetaLylic*(t: var TrackChunk, lylic: string) =
-  t.data.add getMetaData(0x5, lylic)
-
-proc addMetaEndOfTrack*(t: var TrackChunk) =
-  t.data.add metaPrefix
-  t.data.add 0x2F
-  t.data.add 0x0
-
-proc addMetaTempo*(t: var TrackChunk) =
-  discard
-
-proc addMetaTimeSignature*(t: var TrackChunk) =
-  discard
-
-proc addMetaKeySignature*(t: var TrackChunk) =
-  discard
-
 proc newChannelMessage(t: ChannelMessageType,
                        channelNo, noteNo, velocity: byte): ChannelMessage =
   result = case t
@@ -223,27 +237,15 @@ proc newChannelMessage(t: ChannelMessageType,
            of noteOff: [9'u8 + channelNo, noteNo, velocity]
            of controlChange: [0xB'u8 + channelNo, noteNo, velocity]
 
-proc toBytes(h: HeaderChunk): seq[byte] =
-  result.add h.chunkType
-  result.add h.dataLength
-  result.add h.format
-  result.add h.trackCount
-  result.add h.timeUnit.toBytes
-
-proc toBytes(t: TrackChunk): seq[byte] =
-  result.add t.chunkType
-  result.add t.dataLength
-
-proc toBytes(s: SMF): seq[byte] =
-  result.add s.headerChunk.toBytes
-  for t in s.trackChunks:
-    result.add t.toBytes
+# ------------------------------------------------------------------------------
+#   read/write file
+# ------------------------------------------------------------------------------
 
 proc parseHeaderChunk(data: openArray[byte]): HeaderChunk =
   result.chunkType  = data[0..<4]            # 4byte
   result.dataLength = data[4..<8]            # 4byte
   result.format     = data[8..<10]           # 2byte
-  result.trackCount = data[10..<12]          # 2byte
+  result.trackCount = data[10..<12].toUint16 # 2byte
   result.timeUnit   = data[12..<14].toUint16 # 2byte
 
 proc parseTrackChunk(data: openArray[byte]): TrackChunk =
@@ -254,7 +256,8 @@ proc parseTrackChunk(data: openArray[byte]): TrackChunk =
   while part3+3 <= len(data):
     let part = data[part3..<part3+3]
     if part == endOfTrack:
-      result.data = data[startPos..<part3+3]
+      let data = data[startPos..<part3+3]
+      ## TODO
       return
     inc part3
 
@@ -272,7 +275,7 @@ proc readSMFFile*(path: string): SMF =
     data = data[track.chunkSize..^1]
 
 proc writeSMF*(f: File, data: SMF) =
-  let d = data.toBytes
+  var d = data.toBytes
   discard f.writeBytes(d, 0, d.len)
   
 proc writeSMFFile*(path: string, data: SMF) =
