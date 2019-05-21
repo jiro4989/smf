@@ -1691,7 +1691,7 @@ Meta event type
 
 </dd>
 <a id="add,SMF,TrackChunk"></a>
-<dt><pre><span class="Keyword">proc</span> <span class="Identifier">add</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="smf.html#SMF"><span class="Identifier">SMF</span></a><span class="Other">;</span> <span class="Identifier">track</span><span class="Other">:</span> <span class="Identifier">TrackChunk</span><span class="Other">)</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dt><pre><span class="Keyword">proc</span> <span class="Identifier">add</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="smf.html#SMF"><span class="Identifier">SMF</span></a><span class="Other">;</span> <span class="Identifier">track</span><span class="Other">:</span> <span class="Identifier">TrackChunk</span><span class="Other">)</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 SMFにトラックチャンクを追加する。
 
@@ -1709,16 +1709,30 @@ pathのファイルがSMFファイルであるかを判定する。 先頭4byte�
 
 </dd>
 <a id="readSMF,File"></a>
-<dt><pre><span class="Keyword">proc</span> <span class="Identifier">readSMF</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <span class="Identifier">File</span><span class="Other">)</span><span class="Other">:</span> <a href="smf.html#SMF"><span class="Identifier">SMF</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">IOError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dt><pre><span class="Keyword">proc</span> <span class="Identifier">readSMF</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <span class="Identifier">File</span><span class="Other">)</span><span class="Other">:</span> <a href="smf.html#SMF"><span class="Identifier">SMF</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 ファイルからSMFデータを読み込む。
+<p><strong class="examples_text">Examples:</strong></p>
+<pre class="listing"><span class="Keyword">try</span><span class="Other">:</span>
+  <span class="Keyword">var</span> <span class="Identifier">f</span> <span class="Other">=</span> <span class="Identifier">open</span><span class="Other">(</span><span class="StringLit">&quot;test.mid&quot;</span><span class="Other">)</span>
+  <span class="Keyword">var</span> <span class="Identifier">smfObj</span> <span class="Other">=</span> <span class="Identifier">f</span><span class="Other">.</span><span class="Identifier">readSMF</span><span class="Other">(</span><span class="Other">)</span>
+  <span class="Comment">## do something...</span>
+  <span class="Identifier">f</span><span class="Other">.</span><span class="Identifier">close</span><span class="Other">(</span><span class="Other">)</span>
+<span class="Keyword">except</span><span class="Other">:</span>
+  <span class="Identifier">stderr</span><span class="Other">.</span><span class="Identifier">writeLine</span> <span class="Identifier">getCurrentExceptionMsg</span><span class="Other">(</span><span class="Other">)</span></pre>
 
 </dd>
 <a id="readSMFFile,string"></a>
-<dt><pre><span class="Keyword">proc</span> <span class="Identifier">readSMFFile</span><span class="Other">(</span><span class="Identifier">path</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="smf.html#SMF"><span class="Identifier">SMF</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">Exception</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">]</span><span class="Other">,</span>
-                                  <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dt><pre><span class="Keyword">proc</span> <span class="Identifier">readSMFFile</span><span class="Other">(</span><span class="Identifier">path</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="smf.html#SMF"><span class="Identifier">SMF</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">Exception</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">,</span>
+    <span class="Identifier">IOError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 SMFファイルを読み込む。
+<p><strong class="examples_text">Examples:</strong></p>
+<pre class="listing"><span class="Keyword">try</span><span class="Other">:</span>
+  <span class="Keyword">var</span> <span class="Identifier">smfObj</span> <span class="Other">=</span> <span class="Identifier">readSMFFile</span><span class="Other">(</span><span class="StringLit">&quot;test.mid&quot;</span><span class="Other">)</span>
+  <span class="Comment">## do something...</span>
+<span class="Keyword">except</span><span class="Other">:</span>
+  <span class="Identifier">stderr</span><span class="Other">.</span><span class="Identifier">writeLine</span> <span class="Identifier">getCurrentExceptionMsg</span><span class="Other">(</span><span class="Other">)</span></pre>
 
 </dd>
 <a id="writeSMF,File,SMF"></a>
@@ -1726,6 +1740,20 @@ SMFファイルを読み込む。
                                <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">,</span> <span class="Identifier">WriteIOEffect</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 ファイルにSMFのバイナリデータを書き込む。
+<p><strong class="examples_text">Examples:</strong></p>
+<pre class="listing"><span class="Keyword">from</span> <span class="Identifier">os</span> <span class="Keyword">import</span> <span class="Identifier">removeFile</span>
+
+<span class="Keyword">var</span> <span class="Identifier">smfObj</span> <span class="Other">=</span> <span class="Identifier">newSMF</span><span class="Other">(</span><span class="Identifier">format0</span><span class="Other">,</span> <span class="DecNumber">480</span><span class="Other">)</span>
+<span class="Keyword">var</span> <span class="Identifier">track</span> <span class="Other">=</span> <span class="Identifier">newTrackChunk</span><span class="Other">(</span><span class="Other">)</span>
+<span class="Keyword">for</span> <span class="Identifier">i</span> <span class="Keyword">in</span> <span class="DecNumber">1'u8</span> <span class="Operator">..</span> <span class="DecNumber">20</span><span class="Other">:</span>
+  <span class="Keyword">let</span> <span class="Identifier">n</span><span class="Other">:</span> <span class="Identifier">byte</span> <span class="Other">=</span> <span class="DecNumber">0x30'u8</span> <span class="Operator">+</span> <span class="Identifier">i</span>
+  <span class="Identifier">track</span><span class="Other">.</span><span class="Identifier">add</span> <span class="Identifier">newMIDIEvent</span><span class="Other">(</span><span class="DecNumber">0</span><span class="Other">,</span> <span class="Identifier">statusNoteOn</span><span class="Other">,</span> <span class="DecNumber">0</span><span class="Other">,</span> <span class="Identifier">n</span><span class="Other">,</span> <span class="DecNumber">0x00000064</span><span class="Other">)</span>
+  <span class="Identifier">track</span><span class="Other">.</span><span class="Identifier">add</span> <span class="Identifier">newMIDIEvent</span><span class="Other">(</span><span class="DecNumber">120</span><span class="Other">,</span> <span class="Identifier">statusNoteOff</span><span class="Other">,</span> <span class="DecNumber">0</span><span class="Other">,</span> <span class="Identifier">n</span><span class="Other">,</span> <span class="DecNumber">0</span><span class="Other">)</span>
+<span class="Identifier">smfObj</span><span class="Other">.</span><span class="Identifier">add</span> <span class="Identifier">track</span>
+<span class="Keyword">var</span> <span class="Identifier">f</span> <span class="Other">=</span> <span class="Identifier">open</span><span class="Other">(</span><span class="StringLit">&quot;test.mid&quot;</span><span class="Other">,</span> <span class="Identifier">fmWrite</span><span class="Other">)</span>
+<span class="Identifier">f</span><span class="Other">.</span><span class="Identifier">writeSMF</span><span class="Other">(</span><span class="Identifier">smfObj</span><span class="Other">)</span>
+<span class="Identifier">f</span><span class="Other">.</span><span class="Identifier">close</span><span class="Other">(</span><span class="Other">)</span>
+<span class="Identifier">removeFile</span><span class="Other">(</span><span class="StringLit">&quot;test.mid&quot;</span><span class="Other">)</span></pre>
 
 </dd>
 <a id="writeSMFFile,string,SMF"></a>
@@ -1733,6 +1761,18 @@ SMFファイルを読み込む。
     <span class="Identifier">IOError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">,</span> <span class="Identifier">WriteIOEffect</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 SMFのバイナリデータを書き込んだファイルを新規生成する。
+<p><strong class="examples_text">Examples:</strong></p>
+<pre class="listing"><span class="Keyword">from</span> <span class="Identifier">os</span> <span class="Keyword">import</span> <span class="Identifier">removeFile</span>
+
+<span class="Keyword">var</span> <span class="Identifier">smfObj</span> <span class="Other">=</span> <span class="Identifier">newSMF</span><span class="Other">(</span><span class="Identifier">format0</span><span class="Other">,</span> <span class="DecNumber">480</span><span class="Other">)</span>
+<span class="Keyword">var</span> <span class="Identifier">track</span> <span class="Other">=</span> <span class="Identifier">newTrackChunk</span><span class="Other">(</span><span class="Other">)</span>
+<span class="Keyword">for</span> <span class="Identifier">i</span> <span class="Keyword">in</span> <span class="DecNumber">1'u8</span> <span class="Operator">..</span> <span class="DecNumber">20</span><span class="Other">:</span>
+  <span class="Keyword">let</span> <span class="Identifier">n</span><span class="Other">:</span> <span class="Identifier">byte</span> <span class="Other">=</span> <span class="DecNumber">0x30'u8</span> <span class="Operator">+</span> <span class="Identifier">i</span>
+  <span class="Identifier">track</span><span class="Other">.</span><span class="Identifier">add</span> <span class="Identifier">newMIDIEvent</span><span class="Other">(</span><span class="DecNumber">0</span><span class="Other">,</span> <span class="Identifier">statusNoteOn</span><span class="Other">,</span> <span class="DecNumber">0</span><span class="Other">,</span> <span class="Identifier">n</span><span class="Other">,</span> <span class="DecNumber">0x00000064</span><span class="Other">)</span>
+  <span class="Identifier">track</span><span class="Other">.</span><span class="Identifier">add</span> <span class="Identifier">newMIDIEvent</span><span class="Other">(</span><span class="DecNumber">120</span><span class="Other">,</span> <span class="Identifier">statusNoteOff</span><span class="Other">,</span> <span class="DecNumber">0</span><span class="Other">,</span> <span class="Identifier">n</span><span class="Other">,</span> <span class="DecNumber">0</span><span class="Other">)</span>
+<span class="Identifier">smfObj</span><span class="Other">.</span><span class="Identifier">add</span> <span class="Identifier">track</span>
+<span class="Identifier">writeSMFFile</span><span class="Other">(</span><span class="StringLit">&quot;test.mid&quot;</span><span class="Other">,</span> <span class="Identifier">smfObj</span><span class="Other">)</span>
+<span class="Identifier">removeFile</span><span class="Other">(</span><span class="StringLit">&quot;test.mid&quot;</span><span class="Other">)</span></pre>
 
 </dd>
 
@@ -1745,7 +1785,7 @@ SMFのバイナリデータを書き込んだファイルを新規生成する�
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small>Made with Nim. Generated: 2019-05-21 22:13:47 UTC</small>
+        <small>Made with Nim. Generated: 2019-05-21 22:26:02 UTC</small>
       </div>
     </div>
   </div>

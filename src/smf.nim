@@ -252,6 +252,8 @@ proc newMetaEvent*(deltaTime: uint32, metaType: byte, data: string): MetaEvent =
 
 proc add*(self: var SMF, track: TrackChunk) =
   ## SMFにトラックチャンクを追加する。
+  if self.headerChunk.format == format0 and 1 <= self.trackChunks.len:
+    raise newException(ValueError, "FORMAT0ではトラックは1つしかもてません")
   self.trackChunks.add track
   self.headerChunk.trackCount.inc
 
@@ -297,6 +299,17 @@ proc parseTrackChunk(data: openArray[byte]): TrackChunk =
 
 proc readSMF*(f: File): SMF =
   ## ファイルからSMFデータを読み込む。
+  runnableExamples:
+    try:
+      var f = open("test.mid")
+      var smfObj = f.readSMF()
+      ## do something...
+      f.close()
+    except:
+      stderr.writeLine getCurrentExceptionMsg()
+
+  if f.isNil:
+    raise newException(OSError, "開けませんでした")
   var data = f.readAll.mapIt(it.byte)
   result.headerChunk = data.parseHeaderChunk
 
@@ -308,17 +321,52 @@ proc readSMF*(f: File): SMF =
 
 proc readSMFFile*(path: string): SMF =
   ## SMFファイルを読み込む。
+  runnableExamples:
+    try:
+      var smfObj = readSMFFile("test.mid")
+      ## do something...
+    except:
+      stderr.writeLine getCurrentExceptionMsg()
+
   var f = open(path)
+  if f.isNil:
+    raise newException(OSError, path & "を開けませんでした")
   defer: f.close
   result = readSMF(f)
 
 proc writeSMF*(f: File, data: SMF) =
   ## ファイルにSMFのバイナリデータを書き込む。
+  runnableExamples:
+    from os import removeFile
+    var smfObj = newSMF(format0, 480)
+    var track = newTrackChunk()
+    for i in 1'u8..20:
+      let n: byte = 0x30'u8 + i
+      track.add newMIDIEvent(0, statusNoteOn, 0, n, 0x64)
+      track.add newMIDIEvent(120, statusNoteOff, 0, n, 0)
+    smfObj.add track
+    var f = open("test.mid", fmWrite)
+    f.writeSMF(smfObj)
+    f.close()
+    removeFile("test.mid")
+
   var d = data.toBytes
   discard f.writeBytes(d, 0, d.len)
   
 proc writeSMFFile*(path: string, data: SMF) =
   ## SMFのバイナリデータを書き込んだファイルを新規生成する。
+  runnableExamples:
+    from os import removeFile
+    var smfObj = newSMF(format0, 480)
+    var track = newTrackChunk()
+    for i in 1'u8..20:
+      let n: byte = 0x30'u8 + i
+      track.add newMIDIEvent(0, statusNoteOn, 0, n, 0x64)
+      track.add newMIDIEvent(120, statusNoteOff, 0, n, 0)
+    smfObj.add track
+    writeSMFFile("test.mid", smfObj)
+    removeFile("test.mid")
+
   var f = open(path, fmWrite)
   defer: f.close
   f.writeSMF(data)
