@@ -262,6 +262,18 @@ proc add*(self: var TrackChunk, event: MIDIEvent) =
   self.data.add event
   self.dataLength += uint32(event.toBytes.len * 4)
 
+proc delete*(self: var SMF, index: int) =
+  ## TODO error
+  self.headerChunk.trackCount.dec
+  self.trackChunks.delete(index)
+
+proc delete*(self: var TrackChunk, index: int) =
+  ## TODO error
+  let delData = self.data[index]
+  let b = delData.toBytes
+  self.dataLength -= b.len.uint32
+  self.data.delete(index)
+
 proc isSMFFile*(path: string): bool =
   ## pathのファイルがSMFファイルであるかを判定する。
   ## 先頭4byteを読み取って判定する。

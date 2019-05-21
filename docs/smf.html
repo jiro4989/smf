@@ -1345,6 +1345,10 @@ function main() {
     title="add(self: var SMF; track: TrackChunk)"><wbr />add<span class="attachedType" style="visibility:hidden">SMF</span></a></li>
   <li><a class="reference" href="#add%2CTrackChunk%2CMIDIEvent"
     title="add(self: var TrackChunk; event: MIDIEvent)"><wbr />add<span class="attachedType" style="visibility:hidden">MIDIEvent</span></a></li>
+  <li><a class="reference" href="#delete%2CSMF%2Cint"
+    title="delete(self: var SMF; index: int)"><wbr />delete<span class="attachedType" style="visibility:hidden">SMF</span></a></li>
+  <li><a class="reference" href="#delete%2CTrackChunk%2Cint"
+    title="delete(self: var TrackChunk; index: int)"><wbr />delete<span class="attachedType" style="visibility:hidden"></span></a></li>
   <li><a class="reference" href="#isSMFFile%2Cstring"
     title="isSMFFile(path: string): bool"><wbr />is<wbr />SMFFile<span class="attachedType" style="visibility:hidden"></span></a></li>
   <li><a class="reference" href="#readSMF%2CFile"
@@ -1702,6 +1706,18 @@ SMFにトラックチャンクを追加する。
 トラックチャンクにMIDIイベントを追加する。
 
 </dd>
+<a id="delete,SMF,int"></a>
+<dt><pre><span class="Keyword">proc</span> <span class="Identifier">delete</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="smf.html#SMF"><span class="Identifier">SMF</span></a><span class="Other">;</span> <span class="Identifier">index</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+TODO error
+
+</dd>
+<a id="delete,TrackChunk,int"></a>
+<dt><pre><span class="Keyword">proc</span> <span class="Identifier">delete</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">TrackChunk</span><span class="Other">;</span> <span class="Identifier">index</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+TODO error
+
+</dd>
 <a id="isSMFFile,string"></a>
 <dt><pre><span class="Keyword">proc</span> <span class="Identifier">isSMFFile</span><span class="Other">(</span><span class="Identifier">path</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
@@ -1785,7 +1801,7 @@ SMFのバイナリデータを書き込んだファイルを新規生成する�
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small>Made with Nim. Generated: 2019-05-21 22:26:02 UTC</small>
+        <small>Made with Nim. Generated: 2019-05-21 22:39:59 UTC</small>
       </div>
     </div>
   </div>
