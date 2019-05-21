@@ -104,34 +104,33 @@ const
   headerChunkLength = 14      ## 14byte
 
   trackChunkType*: seq[byte] = @[0x4d'u8, 0x54, 0x72, 0x6b] ## MTrk
-  trackDataLength: seq[byte] = @[] ## 4byte
   metaPrefix = 0xFF'u8
   endOfTrack* = @[metaPrefix, 0x2F, 0x00]
 
-  statusNoteOff*       = 0x80'u8
-  statusNoteOn*        = 0x90'u8
-  statusPKPresure*     = 0xA0'u8
-  statusControlChange* = 0xB0'u8
-  statusProgramChange* = 0xC0'u8
-  statusCKPresure*     = 0xD0'u8
-  statusPitchBend*     = 0xE0'u8
+  statusNoteOff*       = 0x80'u8 ## MIDI event status
+  statusNoteOn*        = 0x90'u8 ## MIDI event status
+  statusPKPresure*     = 0xA0'u8 ## MIDI event status
+  statusControlChange* = 0xB0'u8 ## MIDI event status
+  statusProgramChange* = 0xC0'u8 ## MIDI event status
+  statusCKPresure*     = 0xD0'u8 ## MIDI event status
+  statusPitchBend*     = 0xE0'u8 ## MIDI event status
 
-  metaSequenceNumber*    = 0x00'u8
-  metaText*              = 0x01'u8
-  metaCopyrightNotice*   = 0x02'u8
-  metaSequenceTrackName* = 0x03'u8
-  metaInstrumentName*    = 0x04'u8
-  metaLyric*             = 0x05'u8
-  metaMarker*            = 0x06'u8
-  metaCuePoint*          = 0x07'u8
-  metaMIDIChannelPrefix* = 0x20'u8
-  metaMIDIPort*          = 0x21'u8
-  metaEndOfTrack*        = 0x2F'u8
-  metaSetTempo*          = 0x51'u8
-  metaSMTPEOffset*       = 0x54'u8
-  metaTimeSignature*     = 0x58'u8
-  metaKeySignature*      = 0x59'u8
-  metaSequencerSpecific* = 0x7F'u8
+  metaSequenceNumber*    = 0x00'u8 ## Meta event type
+  metaText*              = 0x01'u8 ## Meta event type
+  metaCopyrightNotice*   = 0x02'u8 ## Meta event type
+  metaSequenceTrackName* = 0x03'u8 ## Meta event type
+  metaInstrumentName*    = 0x04'u8 ## Meta event type
+  metaLyric*             = 0x05'u8 ## Meta event type
+  metaMarker*            = 0x06'u8 ## Meta event type
+  metaCuePoint*          = 0x07'u8 ## Meta event type
+  metaMIDIChannelPrefix* = 0x20'u8 ## Meta event type
+  metaMIDIPort*          = 0x21'u8 ## Meta event type
+  metaEndOfTrack*        = 0x2F'u8 ## Meta event type
+  metaSetTempo*          = 0x51'u8 ## Meta event type
+  metaSMTPEOffset*       = 0x54'u8 ## Meta event type
+  metaTimeSignature*     = 0x58'u8 ## Meta event type
+  metaKeySignature*      = 0x59'u8 ## Meta event type
+  metaSequencerSpecific* = 0x7F'u8 ## Meta event type
 
 # ------------------------------------------------------------------------------
 #   utilities
@@ -214,27 +213,50 @@ proc toUint32(n: seq[byte]): uint32 =
 # ------------------------------------------------------------------------------
 
 proc newSMF*(format: seq[byte], timeUnit: uint16): SMF =
+  ## SMFオブジェクトを生成する。
+  ##
+  ## See also:
+  ## * `newTrackChunk proc <#newTrackChunk>`_ creates a TrachChunk
+  ## * `add proc <#add,SMF,TrackChunk>`_ adds TrackChunk to SMF
   result.headerChunk = HeaderChunk(chunkType: headerChunkType,
                                    dataLength: headerDataLength,
                                    format: format,
                                    timeUnit: timeUnit)
 
 proc newTrackChunk*(): TrackChunk =
+  ## トラックチャンクを生成する。
   result.chunkType = trackChunkType
   result.endOfTrack = endOfTrack
 
 proc newMIDIEvent*(deltaTime: uint32, status, channel, note, velocity: byte): MIDIEvent =
+  ## MIDIイベントを生成する。
+  ##
+  ## See also:
+  ## * `newMetaEvent proc <#newMetaEvent>`_ creates a MIDIEvent
+  ## * `newTrackChunk proc <#newTrackChunk>`_ creates a TrachChunk
+  ## * `add proc <#add,TrackChunk,MIDIEvent>`_ adds MIDIEvent to TrackChunk
   result = MIDIEvent(deltaTime: deltaTime, status: status,
                      channel: channel, note: note, velocity: velocity)
 
 proc newMetaEvent*(deltaTime: uint32, metaType: byte, data: seq[byte]): MetaEvent =
+  ## メタイベントを生成する。
   result = MetaEvent(deltaTime: deltaTime, metaType: metaType, data: data)
 
+proc newMetaEvent*(deltaTime: uint32, metaType: byte, data: string): MetaEvent =
+  ## テキスト情報を保持するタイプのメタイベントを生成する。
+  case metaType
+  of metaText, metaCopyrightNotice, metaSequenceTrackName, metaInstrumentName, metaLyric:
+    result = newMetaEvent(deltaTime, metaType, data.mapIt(it.byte))
+  else:
+    raise newException(ValueError ,"illegal metaType: " & $metaType)
+
 proc add*(self: var SMF, track: TrackChunk) =
+  ## SMFにトラックチャンクを追加する。
   self.trackChunks.add track
   self.headerChunk.trackCount.inc
 
 proc add*(self: var TrackChunk, event: MIDIEvent) =
+  ## トラックチャンクにMIDIイベントを追加する。
   self.data.add event
   self.dataLength += uint32(event.toBytes.len * 4)
 
@@ -274,11 +296,8 @@ proc parseTrackChunk(data: openArray[byte]): TrackChunk =
     inc part3
 
 proc readSMF*(f: File): SMF =
-  # TODO
-  discard
-
-proc readSMFFile*(path: string): SMF =
-  var data = readFile(path).mapIt(it.byte)
+  ## ファイルからSMFデータを読み込む。
+  var data = f.readAll.mapIt(it.byte)
   result.headerChunk = data.parseHeaderChunk
 
   data = data[headerChunkLength..^1]
@@ -287,11 +306,19 @@ proc readSMFFile*(path: string): SMF =
     result.trackChunks.add track
     data = data[track.dataLength..^1]
 
+proc readSMFFile*(path: string): SMF =
+  ## SMFファイルを読み込む。
+  var f = open(path)
+  defer: f.close
+  result = readSMF(f)
+
 proc writeSMF*(f: File, data: SMF) =
+  ## ファイルにSMFのバイナリデータを書き込む。
   var d = data.toBytes
   discard f.writeBytes(d, 0, d.len)
   
 proc writeSMFFile*(path: string, data: SMF) =
+  ## SMFのバイナリデータを書き込んだファイルを新規生成する。
   var f = open(path, fmWrite)
   defer: f.close
   f.writeSMF(data)

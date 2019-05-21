@@ -1339,6 +1339,8 @@ function main() {
     title="newMIDIEvent(deltaTime: uint32; status, channel, note, velocity: byte): MIDIEvent"><wbr />new<wbr />MIDIEvent<span class="attachedType" style="visibility:hidden">MIDIEvent</span></a></li>
   <li><a class="reference" href="#newMetaEvent%2Cuint32%2Cbyte%2Cseq%5Bbyte%5D"
     title="newMetaEvent(deltaTime: uint32; metaType: byte; data: seq[byte]): MetaEvent"><wbr />new<wbr />Meta<wbr />Event<span class="attachedType" style="visibility:hidden">MetaEvent</span></a></li>
+  <li><a class="reference" href="#newMetaEvent%2Cuint32%2Cbyte%2Cstring"
+    title="newMetaEvent(deltaTime: uint32; metaType: byte; data: string): MetaEvent"><wbr />new<wbr />Meta<wbr />Event<span class="attachedType" style="visibility:hidden">MetaEvent</span></a></li>
   <li><a class="reference" href="#add%2CSMF%2CTrackChunk"
     title="add(self: var SMF; track: TrackChunk)"><wbr />add<span class="attachedType" style="visibility:hidden">SMF</span></a></li>
   <li><a class="reference" href="#add%2CTrackChunk%2CMIDIEvent"
@@ -1504,139 +1506,139 @@ MTrk
 <a id="statusNoteOff"></a>
 <dt><pre><span class="Identifier">statusNoteOff</span> <span class="Other">=</span> <span class="DecNumber">0x80'u8</span></pre></dt>
 <dd>
-
+MIDI event status
 
 </dd>
 <a id="statusNoteOn"></a>
 <dt><pre><span class="Identifier">statusNoteOn</span> <span class="Other">=</span> <span class="DecNumber">0x90'u8</span></pre></dt>
 <dd>
-
+MIDI event status
 
 </dd>
 <a id="statusPKPresure"></a>
 <dt><pre><span class="Identifier">statusPKPresure</span> <span class="Other">=</span> <span class="DecNumber">0xA0'u8</span></pre></dt>
 <dd>
-
+MIDI event status
 
 </dd>
 <a id="statusControlChange"></a>
 <dt><pre><span class="Identifier">statusControlChange</span> <span class="Other">=</span> <span class="DecNumber">0xB0'u8</span></pre></dt>
 <dd>
-
+MIDI event status
 
 </dd>
 <a id="statusProgramChange"></a>
 <dt><pre><span class="Identifier">statusProgramChange</span> <span class="Other">=</span> <span class="DecNumber">0xC0'u8</span></pre></dt>
 <dd>
-
+MIDI event status
 
 </dd>
 <a id="statusCKPresure"></a>
 <dt><pre><span class="Identifier">statusCKPresure</span> <span class="Other">=</span> <span class="DecNumber">0xD0'u8</span></pre></dt>
 <dd>
-
+MIDI event status
 
 </dd>
 <a id="statusPitchBend"></a>
 <dt><pre><span class="Identifier">statusPitchBend</span> <span class="Other">=</span> <span class="DecNumber">0xE0'u8</span></pre></dt>
 <dd>
-
+MIDI event status
 
 </dd>
 <a id="metaSequenceNumber"></a>
 <dt><pre><span class="Identifier">metaSequenceNumber</span> <span class="Other">=</span> <span class="DecNumber">0x00'u8</span></pre></dt>
 <dd>
-
+Meta event type
 
 </dd>
 <a id="metaText"></a>
 <dt><pre><span class="Identifier">metaText</span> <span class="Other">=</span> <span class="DecNumber">0x01'u8</span></pre></dt>
 <dd>
-
+Meta event type
 
 </dd>
 <a id="metaCopyrightNotice"></a>
 <dt><pre><span class="Identifier">metaCopyrightNotice</span> <span class="Other">=</span> <span class="DecNumber">0x02'u8</span></pre></dt>
 <dd>
-
+Meta event type
 
 </dd>
 <a id="metaSequenceTrackName"></a>
 <dt><pre><span class="Identifier">metaSequenceTrackName</span> <span class="Other">=</span> <span class="DecNumber">0x03'u8</span></pre></dt>
 <dd>
-
+Meta event type
 
 </dd>
 <a id="metaInstrumentName"></a>
 <dt><pre><span class="Identifier">metaInstrumentName</span> <span class="Other">=</span> <span class="DecNumber">0x04'u8</span></pre></dt>
 <dd>
-
+Meta event type
 
 </dd>
 <a id="metaLyric"></a>
 <dt><pre><span class="Identifier">metaLyric</span> <span class="Other">=</span> <span class="DecNumber">0x05'u8</span></pre></dt>
 <dd>
-
+Meta event type
 
 </dd>
 <a id="metaMarker"></a>
 <dt><pre><span class="Identifier">metaMarker</span> <span class="Other">=</span> <span class="DecNumber">0x06'u8</span></pre></dt>
 <dd>
-
+Meta event type
 
 </dd>
 <a id="metaCuePoint"></a>
 <dt><pre><span class="Identifier">metaCuePoint</span> <span class="Other">=</span> <span class="DecNumber">0x07'u8</span></pre></dt>
 <dd>
-
+Meta event type
 
 </dd>
 <a id="metaMIDIChannelPrefix"></a>
 <dt><pre><span class="Identifier">metaMIDIChannelPrefix</span> <span class="Other">=</span> <span class="DecNumber">0x20'u8</span></pre></dt>
 <dd>
-
+Meta event type
 
 </dd>
 <a id="metaMIDIPort"></a>
 <dt><pre><span class="Identifier">metaMIDIPort</span> <span class="Other">=</span> <span class="DecNumber">0x21'u8</span></pre></dt>
 <dd>
-
+Meta event type
 
 </dd>
 <a id="metaEndOfTrack"></a>
 <dt><pre><span class="Identifier">metaEndOfTrack</span> <span class="Other">=</span> <span class="DecNumber">0x2F'u8</span></pre></dt>
 <dd>
-
+Meta event type
 
 </dd>
 <a id="metaSetTempo"></a>
 <dt><pre><span class="Identifier">metaSetTempo</span> <span class="Other">=</span> <span class="DecNumber">0x51'u8</span></pre></dt>
 <dd>
-
+Meta event type
 
 </dd>
 <a id="metaSMTPEOffset"></a>
 <dt><pre><span class="Identifier">metaSMTPEOffset</span> <span class="Other">=</span> <span class="DecNumber">0x54'u8</span></pre></dt>
 <dd>
-
+Meta event type
 
 </dd>
 <a id="metaTimeSignature"></a>
 <dt><pre><span class="Identifier">metaTimeSignature</span> <span class="Other">=</span> <span class="DecNumber">0x58'u8</span></pre></dt>
 <dd>
-
+Meta event type
 
 </dd>
 <a id="metaKeySignature"></a>
 <dt><pre><span class="Identifier">metaKeySignature</span> <span class="Other">=</span> <span class="DecNumber">0x59'u8</span></pre></dt>
 <dd>
-
+Meta event type
 
 </dd>
 <a id="metaSequencerSpecific"></a>
 <dt><pre><span class="Identifier">metaSequencerSpecific</span> <span class="Other">=</span> <span class="DecNumber">0x7F'u8</span></pre></dt>
 <dd>
-
+Meta event type
 
 </dd>
 
@@ -1647,19 +1649,30 @@ MTrk
 <a id="newSMF,seq[byte],uint16"></a>
 <dt><pre><span class="Keyword">proc</span> <span class="Identifier">newSMF</span><span class="Other">(</span><span class="Identifier">format</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">timeUnit</span><span class="Other">:</span> <span class="Identifier">uint16</span><span class="Other">)</span><span class="Other">:</span> <a href="smf.html#SMF"><span class="Identifier">SMF</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
+<p>SMFオブジェクトを生成する。</p>
+<p>See also:</p>
+<ul class="simple"><li><a class="reference external" href="#newTrackChunk">newTrackChunk proc</a> creates a TrachChunk</li>
+<li><a class="reference external" href="#add,SMF,TrackChunk">add proc</a> adds TrackChunk to SMF</li>
+</ul>
 
 
 </dd>
 <a id="newTrackChunk,"></a>
 <dt><pre><span class="Keyword">proc</span> <span class="Identifier">newTrackChunk</span><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">TrackChunk</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
-
+トラックチャンクを生成する。
 
 </dd>
 <a id="newMIDIEvent,uint32,byte,byte,byte,byte"></a>
 <dt><pre><span class="Keyword">proc</span> <span class="Identifier">newMIDIEvent</span><span class="Other">(</span><span class="Identifier">deltaTime</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">status</span><span class="Other">,</span> <span class="Identifier">channel</span><span class="Other">,</span> <span class="Identifier">note</span><span class="Other">,</span> <span class="Identifier">velocity</span><span class="Other">:</span> <span class="Identifier">byte</span><span class="Other">)</span><span class="Other">:</span> <a href="smf.html#MIDIEvent"><span class="Identifier">MIDIEvent</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
     <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
+<p>MIDIイベントを生成する。</p>
+<p>See also:</p>
+<ul class="simple"><li><a class="reference external" href="#newMetaEvent">newMetaEvent proc</a> creates a MIDIEvent</li>
+<li><a class="reference external" href="#newTrackChunk">newTrackChunk proc</a> creates a TrachChunk</li>
+<li><a class="reference external" href="#add,TrackChunk,MIDIEvent">add proc</a> adds MIDIEvent to TrackChunk</li>
+</ul>
 
 
 </dd>
@@ -1667,19 +1680,26 @@ MTrk
 <dt><pre><span class="Keyword">proc</span> <span class="Identifier">newMetaEvent</span><span class="Other">(</span><span class="Identifier">deltaTime</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">metaType</span><span class="Other">:</span> <span class="Identifier">byte</span><span class="Other">;</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="smf.html#MetaEvent"><span class="Identifier">MetaEvent</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
     <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
+メタイベントを生成する。
 
+</dd>
+<a id="newMetaEvent,uint32,byte,string"></a>
+<dt><pre><span class="Keyword">proc</span> <span class="Identifier">newMetaEvent</span><span class="Other">(</span><span class="Identifier">deltaTime</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">;</span> <span class="Identifier">metaType</span><span class="Other">:</span> <span class="Identifier">byte</span><span class="Other">;</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="smf.html#MetaEvent"><span class="Identifier">MetaEvent</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma">
+    <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+テキスト情報を保持するタイプのメタイベントを生成する。
 
 </dd>
 <a id="add,SMF,TrackChunk"></a>
 <dt><pre><span class="Keyword">proc</span> <span class="Identifier">add</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="smf.html#SMF"><span class="Identifier">SMF</span></a><span class="Other">;</span> <span class="Identifier">track</span><span class="Other">:</span> <span class="Identifier">TrackChunk</span><span class="Other">)</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
-
+SMFにトラックチャンクを追加する。
 
 </dd>
 <a id="add,TrackChunk,MIDIEvent"></a>
 <dt><pre><span class="Keyword">proc</span> <span class="Identifier">add</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">TrackChunk</span><span class="Other">;</span> <span class="Identifier">event</span><span class="Other">:</span> <a href="smf.html#MIDIEvent"><span class="Identifier">MIDIEvent</span></a><span class="Other">)</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
-
+トラックチャンクにMIDIイベントを追加する。
 
 </dd>
 <a id="isSMFFile,string"></a>
@@ -1689,29 +1709,30 @@ pathのファイルがSMFファイルであるかを判定する。 先頭4byte�
 
 </dd>
 <a id="readSMF,File"></a>
-<dt><pre><span class="Keyword">proc</span> <span class="Identifier">readSMF</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <span class="Identifier">File</span><span class="Other">)</span><span class="Other">:</span> <a href="smf.html#SMF"><span class="Identifier">SMF</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dt><pre><span class="Keyword">proc</span> <span class="Identifier">readSMF</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <span class="Identifier">File</span><span class="Other">)</span><span class="Other">:</span> <a href="smf.html#SMF"><span class="Identifier">SMF</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">IOError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
-
+ファイルからSMFデータを読み込む。
 
 </dd>
 <a id="readSMFFile,string"></a>
-<dt><pre><span class="Keyword">proc</span> <span class="Identifier">readSMFFile</span><span class="Other">(</span><span class="Identifier">path</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="smf.html#SMF"><span class="Identifier">SMF</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">IOError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dt><pre><span class="Keyword">proc</span> <span class="Identifier">readSMFFile</span><span class="Other">(</span><span class="Identifier">path</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="smf.html#SMF"><span class="Identifier">SMF</span></a> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">Exception</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">]</span><span class="Other">,</span>
+                                  <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ReadIOEffect</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
-
+SMFファイルを読み込む。
 
 </dd>
 <a id="writeSMF,File,SMF"></a>
 <dt><pre><span class="Keyword">proc</span> <span class="Identifier">writeSMF</span><span class="Other">(</span><span class="Identifier">f</span><span class="Other">:</span> <span class="Identifier">File</span><span class="Other">;</span> <span class="Identifier">data</span><span class="Other">:</span> <a href="smf.html#SMF"><span class="Identifier">SMF</span></a><span class="Other">)</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">Exception</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">]</span><span class="Other">,</span>
                                <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">,</span> <span class="Identifier">WriteIOEffect</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
-
+ファイルにSMFのバイナリデータを書き込む。
 
 </dd>
 <a id="writeSMFFile,string,SMF"></a>
 <dt><pre><span class="Keyword">proc</span> <span class="Identifier">writeSMFFile</span><span class="Other">(</span><span class="Identifier">path</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">data</span><span class="Other">:</span> <a href="smf.html#SMF"><span class="Identifier">SMF</span></a><span class="Other">)</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">Exception</span><span class="Other">,</span> <span class="Identifier">IOError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">,</span>
     <span class="Identifier">IOError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">,</span> <span class="Identifier">WriteIOEffect</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
-
+SMFのバイナリデータを書き込んだファイルを新規生成する。
 
 </dd>
 
@@ -1724,7 +1745,7 @@ pathのファイルがSMFファイルであるかを判定する。 先頭4byte�
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small>Made with Nim. Generated: 2019-05-20 14:51:34 UTC</small>
+        <small>Made with Nim. Generated: 2019-05-21 22:13:47 UTC</small>
       </div>
     </div>
   </div>
