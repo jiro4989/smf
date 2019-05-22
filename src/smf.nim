@@ -92,10 +92,6 @@ include smf/types, smf/consts, smf/utils, smf/ios
 
 import streams
 
-# ------------------------------------------------------------------------------
-#   public procedures
-# ------------------------------------------------------------------------------
-
 proc newSMF*(format: seq[byte], timeUnit: uint16): SMF =
   ## SMFオブジェクトを生成する。
   ##
