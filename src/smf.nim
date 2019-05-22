@@ -62,6 +62,27 @@
 ## MTrk ......................
 ## MTrk ......................
 ##
+## Basic usage
+## ===========
+##
+## Large example
+## -------------
+##
+## .. code-block:: Nim
+##
+##    import smf
+##
+##    var smfObj = newSMF(format0, 480)
+##
+##    var track = newTrackChunk()
+##    for i in 1'u8..20:
+##      let n: byte = 0x30'u8 + i
+##      track.add newMIDIEvent(0, statusNoteOn, 0, n, 0x64)
+##      track.add newMIDIEvent(120, statusNoteOff, 0, n, 0)
+##    smfObj.add track
+##
+##    writeSMFFile("test.mid", smfObj)
+##
 ## See also:
 ## * http://maruyama.breadfish.jp/tech/smf/
 ## * https://qiita.com/PianoScoreJP/items/2f03ae61d91db0334d45
