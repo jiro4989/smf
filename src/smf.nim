@@ -203,6 +203,7 @@ method toBytes(event: MIDIEvent): seq[byte] =
 method toBytes(event: MetaEvent): seq[byte] =
   result.add event.deltaTime.toDeltaTime
   result.add event.metaType
+  result.add event.data.len.uint32.toDeltaTime
   result.add event.data
 
 proc toBytes(h: HeaderChunk): seq[byte] =

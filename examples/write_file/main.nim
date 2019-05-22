@@ -4,6 +4,7 @@ var smfObj = newSMF(format0, 480)
 
 block:
   var track = newTrackChunk()
+  track.add newMetaEvent(0, metaText, "Test text")
   for i in 1'u8..20:
     let n: byte = 0x30'u8 + i
     track.add newMIDIEvent(0, statusNoteOn, 0, n, 0x64)
