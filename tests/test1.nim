@@ -86,6 +86,36 @@ suite "toUint16":
 suite "toUint32":
   discard
 
+suite "add(SMF)":
+  test "Normal":
+    var smfObj = newSMF(format0, 480)
+    var track = newTrackChunk()
+    smfObj.add track
+    var smfObj2 = newSMF(format0, 480)
+    check smfObj.headerChunk.trackCount == 1
+    check smfObj.trackChunks[0] == track
+
+# suite "add(TrackChunk)":
+#   test "Normal":
+#     var track = newTrackChunk()
+#     track.add newMetaEvent(0, metaText, @[1'u8])
+#     var track2 = newTrackChunk()
+#     track2.dataLength += 
+#     check track == track2
+
+suite "delete(SMF)":
+  test "Normal":
+    var smfObj = newSMF(format1, 480)
+    var track = newTrackChunk()
+    smfObj.add track
+    smfObj.add track
+    smfObj.delete(1)
+    check smfObj.headerChunk.trackCount == 1
+    smfObj.delete(0)
+    check smfObj.headerChunk.trackCount == 0
+    expect(RangeError):
+      smfObj.delete(0)
+
 suite "isSMFFile":
   test "SMF file": check midiFile.isSMFFile
   test "Not SMF file": check "smf.nimble".isSMFFile == false
