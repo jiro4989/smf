@@ -1,5 +1,5 @@
-from algorithm import reversed
 import types
+from algorithm import reversed
 
 proc padZero*(data: openArray[byte], n: int): seq[byte] = 
   result.add data

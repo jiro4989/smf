@@ -88,8 +88,10 @@
 ## * https://qiita.com/PianoScoreJP/items/2f03ae61d91db0334d45
 ## * https://www.g200kg.com/jp/docs/tech/smf.html
 
-include smf/types, smf/consts, smf/utils, smf/ios
+import smf/[types, consts, utils, parse]
+export types, consts
 
+from sequtils import mapIt
 import streams
 
 proc newSMF*(format: seq[byte], timeUnit: uint16): SMF =
@@ -181,3 +183,81 @@ proc isSMFFile*(path: string): bool =
   var buf: array[4, byte]
   discard strm.readData(addr(buf), len(buf))
   result = buf == headerChunkType
+
+proc readSMF*(f: File): SMF =
+  ## ファイルからSMFデータを読み込む。
+  runnableExamples:
+    try:
+      var f = open("test.mid")
+      var smfObj = f.readSMF()
+      ## do something...
+      f.close()
+    except:
+      stderr.writeLine getCurrentExceptionMsg()
+
+  if f.isNil:
+    raise newException(OSError, "開けませんでした")
+  var data = f.readAll.mapIt(it.byte)
+  result.headerChunk = data.parseHeaderChunk
+
+  # ヘッダチャンクは除外
+  data = data[headerChunkLength..^1]
+  for i in 1'u16..result.headerChunk.trackCount:
+    # トラックチャンクの取得
+    let track = data.parseTrackChunk
+    result.trackChunks.add track
+    # 1つ目のトラックチャンクを除外
+    data = data[int(8'u32+track.dataLength)..^1]
+
+proc readSMFFile*(path: string): SMF =
+  ## SMFファイルを読み込む。
+  runnableExamples:
+    try:
+      var smfObj = readSMFFile("test.mid")
+      ## do something...
+    except:
+      stderr.writeLine getCurrentExceptionMsg()
+
+  var f = open(path)
+  if f.isNil:
+    raise newException(OSError, path & "を開けませんでした")
+  defer: f.close
+  result = readSMF(f)
+
+proc writeSMF*(f: File, data: SMF) =
+  ## ファイルにSMFのバイナリデータを書き込む。
+  runnableExamples:
+    from os import removeFile
+    var smfObj = newSMF(format0, 480)
+    var track = newTrackChunk()
+    for i in 1'u8..20:
+      let n: byte = 0x30'u8 + i
+      track.add newMIDIEvent(0, statusNoteOn, 0, n, 0x64)
+      track.add newMIDIEvent(120, statusNoteOff, 0, n, 0)
+    smfObj.add track
+    var f = open("test.mid", fmWrite)
+    f.writeSMF(smfObj)
+    f.close()
+    removeFile("test.mid")
+
+  var d = data.toBytes
+  discard f.writeBytes(d, 0, d.len)
+  
+proc writeSMFFile*(path: string, data: SMF) =
+  ## SMFのバイナリデータを書き込んだファイルを新規生成する。
+  runnableExamples:
+    from os import removeFile
+    var smfObj = newSMF(format0, 480)
+    var track = newTrackChunk()
+    for i in 1'u8..20:
+      let n: byte = 0x30'u8 + i
+      track.add newMIDIEvent(0, statusNoteOn, 0, n, 0x64)
+      track.add newMIDIEvent(120, statusNoteOff, 0, n, 0)
+    smfObj.add track
+    writeSMFFile("test.mid", smfObj)
+    removeFile("test.mid")
+
+  var f = open(path, fmWrite)
+  defer: f.close
+  f.writeSMF(data)
+  

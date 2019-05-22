@@ -11,8 +11,12 @@ srcDir        = "src"
 
 requires "nim >= 0.19.4"
 
+import strformat
+
 task docs, "Generate documents":
   exec "nimble doc src/smf.nim -o:docs/smf.html"
+  for m in ["types", "consts", "utils", "parse"]:
+    exec &"nimble doc src/smf/{m}.nim -o:docs/{m}.html"
 
 task examples, "Run example code":
   withDir "examples/write_file":
