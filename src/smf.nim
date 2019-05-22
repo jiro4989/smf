@@ -274,6 +274,7 @@ proc newMetaEvent*(deltaTime: uint32, metaType: byte, data: string): MetaEvent =
   ## テキスト情報を保持するタイプのメタイベントを生成する。
   runnableExamples:
     var event = newMetaEvent(0, metaInstrumentName, "Guitar")
+
   case metaType
   of metaText, metaCopyrightNotice, metaSequenceTrackName, metaInstrumentName, metaLyric:
     result = newMetaEvent(deltaTime, metaType, data.mapIt(it.byte))
@@ -287,7 +288,7 @@ proc add*(self: var SMF, track: TrackChunk) =
   self.trackChunks.add track
   self.headerChunk.trackCount.inc
 
-proc add*(self: var TrackChunk, event: MIDIEvent) =
+proc add*(self: var TrackChunk, event: Event) =
   ## トラックチャンクにMIDIイベントを追加する。
   self.data.add event
   self.dataLength += uint32(event.toBytes.len)
