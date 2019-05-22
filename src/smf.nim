@@ -234,15 +234,25 @@ proc newMIDIEvent*(deltaTime: uint32, status, channel, note, velocity: byte): MI
   ## * `newMetaEvent proc <#newMetaEvent>`_ creates a MIDIEvent
   ## * `newTrackChunk proc <#newTrackChunk>`_ creates a TrachChunk
   ## * `add proc <#add,TrackChunk,MIDIEvent>`_ adds MIDIEvent to TrackChunk
+  runnableExamples:
+    var track = newTrackChunk()
+    track.add newMIDIEvent(0, statusNoteOn, 0, 0x31, 0x64)
+
   result = MIDIEvent(deltaTime: deltaTime, status: status,
                      channel: channel, note: note, velocity: velocity)
 
 proc newMetaEvent*(deltaTime: uint32, metaType: byte, data: seq[byte]): MetaEvent =
   ## メタイベントを生成する。
+  runnableExamples:
+    ## Meta event "End of Track"
+    var event = newMetaEvent(0, metaEndOfTrack, @[])
+
   result = MetaEvent(deltaTime: deltaTime, metaType: metaType, data: data)
 
 proc newMetaEvent*(deltaTime: uint32, metaType: byte, data: string): MetaEvent =
   ## テキスト情報を保持するタイプのメタイベントを生成する。
+  runnableExamples:
+    var event = newMetaEvent(0, metaInstrumentName, "Guitar")
   case metaType
   of metaText, metaCopyrightNotice, metaSequenceTrackName, metaInstrumentName, metaLyric:
     result = newMetaEvent(deltaTime, metaType, data.mapIt(it.byte))
@@ -252,7 +262,7 @@ proc newMetaEvent*(deltaTime: uint32, metaType: byte, data: string): MetaEvent =
 proc add*(self: var SMF, track: TrackChunk) =
   ## SMFにトラックチャンクを追加する。
   if self.headerChunk.format == format0 and 1 <= self.trackChunks.len:
-    raise newException(ValueError, "FORMAT0ではトラックは1つしかもてません")
+    assert(false, "FORMAT0ではトラックは1つしかもてません")
   self.trackChunks.add track
   self.headerChunk.trackCount.inc
 

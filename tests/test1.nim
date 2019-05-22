@@ -91,17 +91,6 @@ suite "isSMFFile":
   test "Not SMF file": check "smf.nimble".isSMFFile == false
   test "Not exist file": check "not_exist".isSMFFile == false
 
-let data = midiFile.readFile.mapIt(it.byte)
-
-suite "parseHeaderChunk":
-  test "Normal":
-    let c = HeaderChunk(chunkType: headerChunkType,
-                        dataLength: headerDataLength,
-                        format: format1,
-                        trackCount: 2,
-                        timeUnit: 0x0180)
-    check data.parseHeaderChunk == c
-
 suite "Read/Write example":
   test "Normal":
     var smfObj = newSMF(format0, 480)

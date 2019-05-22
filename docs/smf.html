@@ -1678,6 +1678,9 @@ Meta event type
 <li><a class="reference external" href="#add,TrackChunk,MIDIEvent">add proc</a> adds MIDIEvent to TrackChunk</li>
 </ul>
 
+<p><strong class="examples_text">Examples:</strong></p>
+<pre class="listing"><span class="Keyword">var</span> <span class="Identifier">track</span> <span class="Other">=</span> <span class="Identifier">newTrackChunk</span><span class="Other">(</span><span class="Other">)</span>
+<span class="Identifier">track</span><span class="Other">.</span><span class="Identifier">add</span> <span class="Identifier">newMIDIEvent</span><span class="Other">(</span><span class="DecNumber">0</span><span class="Other">,</span> <span class="Identifier">statusNoteOn</span><span class="Other">,</span> <span class="DecNumber">0</span><span class="Other">,</span> <span class="DecNumber">0x00000031</span><span class="Other">,</span> <span class="DecNumber">0x00000064</span><span class="Other">)</span></pre>
 
 </dd>
 <a id="newMetaEvent,uint32,byte,seq[byte]"></a>
@@ -1685,6 +1688,9 @@ Meta event type
     <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 メタイベントを生成する。
+<p><strong class="examples_text">Examples:</strong></p>
+<pre class="listing"><span class="Comment">## Meta event &quot;End of Track&quot;</span>
+<span class="Keyword">var</span> <span class="Identifier">event</span> <span class="Other">=</span> <span class="Identifier">newMetaEvent</span><span class="Other">(</span><span class="DecNumber">0</span><span class="Other">,</span> <span class="Identifier">metaEndOfTrack</span><span class="Other">,</span> <span class="Operator">@</span><span class="Other">[</span><span class="Other">]</span><span class="Other">)</span></pre>
 
 </dd>
 <a id="newMetaEvent,uint32,byte,string"></a>
@@ -1692,10 +1698,12 @@ Meta event type
     <span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 テキスト情報を保持するタイプのメタイベントを生成する。
+<p><strong class="examples_text">Examples:</strong></p>
+<pre class="listing"><span class="Keyword">var</span> <span class="Identifier">event</span> <span class="Other">=</span> <span class="Identifier">newMetaEvent</span><span class="Other">(</span><span class="DecNumber">0</span><span class="Other">,</span> <span class="Identifier">metaInstrumentName</span><span class="Other">,</span> <span class="StringLit">&quot;Guitar&quot;</span><span class="Other">)</span></pre>
 
 </dd>
 <a id="add,SMF,TrackChunk"></a>
-<dt><pre><span class="Keyword">proc</span> <span class="Identifier">add</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="smf.html#SMF"><span class="Identifier">SMF</span></a><span class="Other">;</span> <span class="Identifier">track</span><span class="Other">:</span> <span class="Identifier">TrackChunk</span><span class="Other">)</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dt><pre><span class="Keyword">proc</span> <span class="Identifier">add</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="smf.html#SMF"><span class="Identifier">SMF</span></a><span class="Other">;</span> <span class="Identifier">track</span><span class="Other">:</span> <span class="Identifier">TrackChunk</span><span class="Other">)</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 SMFにトラックチャンクを追加する。
 
@@ -1801,7 +1809,7 @@ SMFのバイナリデータを書き込んだファイルを新規生成する�
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small>Made with Nim. Generated: 2019-05-22 00:29:42 UTC</small>
+        <small>Made with Nim. Generated: 2019-05-22 02:52:04 UTC</small>
       </div>
     </div>
   </div>
