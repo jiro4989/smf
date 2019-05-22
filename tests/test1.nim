@@ -102,14 +102,23 @@ suite "parseHeaderChunk":
                         timeUnit: 0x0180)
     check data.parseHeaderChunk == c
 
-# suite "parseTrackChunk":
-#   test "Normal":
-#     let t = TrackChunk(chunkType: trackChunkType,
-#                        dataLength: 1,
-#                        data: @[],
-#                        endOfTrack: endOfTrack)
-#     check data[headerChunkLength..^1].parseTrackChunk == t
+suite "Read/Write example":
+  test "Normal":
+    var smfObj = newSMF(format0, 480)
 
-# suite "readSMFFile":
-#   test "1":
-#     echo midiFile.readSMFFile
+    var track = newTrackChunk()
+    for i in 1'u8..20:
+      let n: byte = 0x30'u8 + i
+      track.add newMIDIEvent(0, statusNoteOn, 0, n, 0x64)
+      track.add newMIDIEvent(120, statusNoteOff, 0, n, 0)
+    smfObj.add track
+
+    writeSMFFile(midiFile, smfObj)
+
+    let smfObj2 = readSMFFile(midiFile)
+    echo "---------------"
+    echo smfObj.headerChunk
+    echo smfObj.trackChunks
+    echo "---------------"
+    echo smfObj2.headerChunk
+    echo smfObj2.trackChunks
