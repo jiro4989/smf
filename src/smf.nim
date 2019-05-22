@@ -99,6 +99,7 @@ type
     status*: byte
     channel*, note*, velocity*: byte
   SysExEvent* = ref object of Event
+    deltaTime*: uint32
     eventType*: byte
     dataLength*: uint32
     data*: seq[byte]
@@ -349,12 +350,16 @@ proc parseMIDIEvent(data: openArray[byte]): MIDIEvent =
 
 proc parseSysExEvent(data: openArray[byte]): SysExEvent =
   ## TODO F7型には対応していない。
-  let evType = data[0]
+  let deltaTime = data.parseDeltaTime
+  var b = data[deltaTime.len..^1]
+
+  let evType = b[0]
   assert(evType in [0xf0'u8, 0xf7], "SysExイベントの先頭の文字が不正")
   new result
+  result.deltaTime = deltaTime.deltaTimeToOctal
   result.eventType = evType
 
-  var b = data[1..^1]
+  b = b[1..^1]
   let dl = b.parseDeltaTime
   result.dataLength = dl.deltaTimeToOctal
 

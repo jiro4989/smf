@@ -166,15 +166,16 @@ suite "isSMFFile":
 
 suite "parseSysExEvent":
   test "F0":
-    check @[0xf0'u8, 1, 0xf7].parseSysExEvent[] == SysExEvent(eventType: 0xf0, dataLength: 1, data: @[0xf7'u8])[]
+    check @[0'u8, 0xf0, 1, 0xf7].parseSysExEvent[] == SysExEvent(eventType: 0xf0, dataLength: 1, data: @[0xf7'u8])[]
+    check @[129'u8, 0, 0xf0, 1, 0xf7].parseSysExEvent[] == SysExEvent(deltaTime: 128, eventType: 0xf0, dataLength: 1, data: @[0xf7'u8])[]
   test "F0 (data length is 2)":
-    var data = @[0xf0'u8, 129, 0]
+    var data = @[1'u8, 0xf0, 129, 0]
     data.add 0'u8.repeat(127)
     data.add 0xf7
 
     var ret = 0'u8.repeat(127)
     ret.add 0xf7
-    check data.parseSysExEvent[] == SysExEvent(eventType: 0xf0, dataLength: 128, data: ret)[]
+    check data.parseSysExEvent[] == SysExEvent(deltaTime: 1, eventType: 0xf0, dataLength: 128, data: ret)[]
 
 suite "Read/Write example":
   test "Normal":

@@ -1240,7 +1240,9 @@ function main() {
   <ul class="simple simple-toc" id="toc-list">
 <li><a class="reference" id="smfのデータ構造_toc" href="#smfのデータ構造">SMFのデータ構造</a></li>
 <ul class="simple"><li><a class="reference" id="smfのデータ構造-ヘッダ_toc" href="#smfのデータ構造-ヘッダ">ヘッダ</a></li>
-</ul><li>
+<ul class="simple"><li><a class="reference" id="ヘッダ-basic-usage_toc" href="#ヘッダ-basic-usage">Basic usage</a></li>
+</ul></ul><li><a class="reference" id="large-example_toc" href="#large-example">Large example</a></li>
+<li>
   <a class="reference reference-toplevel" href="#7" id="57">Types</a>
   <ul class="simple simple-toc-section">
       <li><a class="reference" href="#Event"
@@ -1250,6 +1252,12 @@ function main() {
   deltaTime*: uint32
   status*: byte
   channel*, note*, velocity*: byte"><wbr />MIDIEvent<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#SysExEvent"
+    title="SysExEvent = ref object of Event
+  deltaTime*: uint32
+  eventType*: byte
+  dataLength*: uint32
+  data*: seq[byte]"><wbr />Sys<wbr />Ex<wbr />Event<span class="attachedType" style="visibility:hidden"></span></a></li>
   <li><a class="reference" href="#MetaEvent"
     title="MetaEvent = ref object of Event
   deltaTime: uint32
@@ -1343,8 +1351,8 @@ function main() {
     title="newMetaEvent(deltaTime: uint32; metaType: byte; data: string): MetaEvent"><wbr />new<wbr />Meta<wbr />Event<span class="attachedType" style="visibility:hidden">MetaEvent</span></a></li>
   <li><a class="reference" href="#add%2CSMF%2CTrackChunk"
     title="add(self: var SMF; track: TrackChunk)"><wbr />add<span class="attachedType" style="visibility:hidden">SMF</span></a></li>
-  <li><a class="reference" href="#add%2CTrackChunk%2CMIDIEvent"
-    title="add(self: var TrackChunk; event: MIDIEvent)"><wbr />add<span class="attachedType" style="visibility:hidden">MIDIEvent</span></a></li>
+  <li><a class="reference" href="#add%2CTrackChunk%2CEvent"
+    title="add(self: var TrackChunk; event: Event)"><wbr />add<span class="attachedType" style="visibility:hidden">Event</span></a></li>
   <li><a class="reference" href="#delete%2CSMF%2Cint"
     title="delete(self: var SMF; index: int)"><wbr />delete<span class="attachedType" style="visibility:hidden">SMF</span></a></li>
   <li><a class="reference" href="#delete%2CTrackChunk%2Cint"
@@ -1416,7 +1424,20 @@ function main() {
 <p>データサンプル</p>
 <p>イメージとしては以下のような感じ</p>
 <p>MThd ...................... (常に1つ) MTrk ...................... (1つかもしれないし、それ以上かもしれない) MTrk ...................... MTrk ......................</p>
-<p>See also:</p>
+
+<h3><a class="toc-backref" id="ヘッダ-basic-usage" href="#ヘッダ-basic-usage">Basic usage</a></h3>
+<h1><a class="toc-backref" id="large-example" href="#large-example">Large example</a></h1><pre class="listing"><span class="Keyword">import</span> <span class="Identifier">smf</span>
+
+<span class="Keyword">var</span> <span class="Identifier">smfObj</span> <span class="Operator">=</span> <span class="Identifier">newSMF</span><span class="Punctuation">(</span><span class="Identifier">format0</span><span class="Punctuation">,</span> <span class="DecNumber">480</span><span class="Punctuation">)</span>
+
+<span class="Keyword">var</span> <span class="Identifier">track</span> <span class="Operator">=</span> <span class="Identifier">newTrackChunk</span><span class="Punctuation">(</span><span class="Punctuation">)</span>
+<span class="Keyword">for</span> <span class="Identifier">i</span> <span class="Keyword">in</span> <span class="DecNumber">1'</span><span class="Identifier">u8</span><span class="Operator">..</span><span class="DecNumber">20</span><span class="Punctuation">:</span>
+  <span class="Keyword">let</span> <span class="Identifier">n</span><span class="Punctuation">:</span> <span class="Identifier">byte</span> <span class="Operator">=</span> <span class="HexNumber">0x30'</span><span class="Identifier">u8</span> <span class="Operator">+</span> <span class="Identifier">i</span>
+  <span class="Identifier">track</span><span class="Operator">.</span><span class="Identifier">add</span> <span class="Identifier">newMIDIEvent</span><span class="Punctuation">(</span><span class="DecNumber">0</span><span class="Punctuation">,</span> <span class="Identifier">statusNoteOn</span><span class="Punctuation">,</span> <span class="DecNumber">0</span><span class="Punctuation">,</span> <span class="Identifier">n</span><span class="Punctuation">,</span> <span class="HexNumber">0x64</span><span class="Punctuation">)</span>
+  <span class="Identifier">track</span><span class="Operator">.</span><span class="Identifier">add</span> <span class="Identifier">newMIDIEvent</span><span class="Punctuation">(</span><span class="DecNumber">120</span><span class="Punctuation">,</span> <span class="Identifier">statusNoteOff</span><span class="Punctuation">,</span> <span class="DecNumber">0</span><span class="Punctuation">,</span> <span class="Identifier">n</span><span class="Punctuation">,</span> <span class="DecNumber">0</span><span class="Punctuation">)</span>
+<span class="Identifier">smfObj</span><span class="Operator">.</span><span class="Identifier">add</span> <span class="Identifier">track</span>
+
+<span class="Identifier">writeSMFFile</span><span class="Punctuation">(</span><span class="StringLit">&quot;test.mid&quot;</span><span class="Punctuation">,</span> <span class="Identifier">smfObj</span><span class="Punctuation">)</span></pre><p>See also:</p>
 <ul class="simple"><li><a class="reference external" href="http://maruyama.breadfish.jp/tech/smf">http://maruyama.breadfish.jp/tech/smf</a>/</li>
 <li><a class="reference external" href="https://qiita.com/PianoScoreJP/items/2f03ae61d91db0334d45">https://qiita.com/PianoScoreJP/items/2f03ae61d91db0334d45</a></li>
 <li><a class="reference external" href="https://www.g200kg.com/jp/docs/tech/smf.html">https://www.g200kg.com/jp/docs/tech/smf.html</a></li>
@@ -1436,6 +1457,17 @@ function main() {
   <span class="Identifier">deltaTime</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
   <span class="Identifier">status</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">byte</span>
   <span class="Identifier">channel</span><span class="Operator">*</span><span class="Other">,</span> <span class="Identifier">note</span><span class="Operator">*</span><span class="Other">,</span> <span class="Identifier">velocity</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">byte</span>
+</pre></dt>
+<dd>
+
+
+</dd>
+<a id="SysExEvent"></a>
+<dt><pre><a href="smf.html#SysExEvent"><span class="Identifier">SysExEvent</span></a> <span class="Other">=</span> <span class="Keyword">ref</span> <span class="Keyword">object</span> <span class="Keyword">of</span> <a href="smf.html#Event"><span class="Identifier">Event</span></a>
+  <span class="Identifier">deltaTime</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
+  <span class="Identifier">eventType</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">byte</span>
+  <span class="Identifier">dataLength</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
+  <span class="Identifier">data</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span>
 </pre></dt>
 <dd>
 
@@ -1708,8 +1740,8 @@ Meta event type
 SMFにトラックチャンクを追加する。
 
 </dd>
-<a id="add,TrackChunk,MIDIEvent"></a>
-<dt><pre><span class="Keyword">proc</span> <span class="Identifier">add</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">TrackChunk</span><span class="Other">;</span> <span class="Identifier">event</span><span class="Other">:</span> <a href="smf.html#MIDIEvent"><span class="Identifier">MIDIEvent</span></a><span class="Other">)</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="add,TrackChunk,Event"></a>
+<dt><pre><span class="Keyword">proc</span> <span class="Identifier">add</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">TrackChunk</span><span class="Other">;</span> <span class="Identifier">event</span><span class="Other">:</span> <a href="smf.html#Event"><span class="Identifier">Event</span></a><span class="Other">)</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 トラックチャンクにMIDIイベントを追加する。
 
@@ -1809,7 +1841,7 @@ SMFのバイナリデータを書き込んだファイルを新規生成する�
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small>Made with Nim. Generated: 2019-05-22 02:52:04 UTC</small>
+        <small>Made with Nim. Generated: 2019-05-22 08:28:24 UTC</small>
       </div>
     </div>
   </div>
