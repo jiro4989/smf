@@ -343,17 +343,23 @@ proc add*(self: var TrackChunk, event: Event) =
   self.data.add event
   self.dataLength += uint32(event.toBytes.len)
 
-proc delete*(self: var SMF, index: int) =
+proc insert*(self: var SMF, track: TrackChunk, i: Natural = 0) =
+  discard
+
+proc insert*(self: var TrackChunk, track: Event, i: Natural = 0) =
+  discard
+
+proc delete*(self: var SMF, i: Natural = 0) =
   ## TODO error
   self.headerChunk.trackCount.dec
-  self.trackChunks.delete(index)
+  self.trackChunks.delete(i)
 
-proc delete*(self: var TrackChunk, index: int) =
+proc delete*(self: var TrackChunk, i: Natural = 0) =
   ## TODO error
-  let delData = self.data[index]
+  let delData = self.data[i]
   let b = delData.toBytes
   self.dataLength -= b.len.uint32
-  self.data.delete(index)
+  self.data.delete(i)
 
 proc isSMFFile*(path: string): bool =
   ## pathのファイルがSMFファイルであるかを判定する。

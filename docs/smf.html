@@ -1360,10 +1360,14 @@ function main() {
     title="add(self: var SMF; track: TrackChunk)"><wbr />add<span class="attachedType" style="visibility:hidden">SMF</span></a></li>
   <li><a class="reference" href="#add%2CTrackChunk%2CEvent"
     title="add(self: var TrackChunk; event: Event)"><wbr />add<span class="attachedType" style="visibility:hidden">Event</span></a></li>
-  <li><a class="reference" href="#delete%2CSMF%2Cint"
-    title="delete(self: var SMF; index: int)"><wbr />delete<span class="attachedType" style="visibility:hidden">SMF</span></a></li>
-  <li><a class="reference" href="#delete%2CTrackChunk%2Cint"
-    title="delete(self: var TrackChunk; index: int)"><wbr />delete<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#insert%2CSMF%2CTrackChunk%2CNatural"
+    title="insert(self: var SMF; track: TrackChunk; i: Natural = 0)"><wbr />insert<span class="attachedType" style="visibility:hidden">SMF</span></a></li>
+  <li><a class="reference" href="#insert%2CTrackChunk%2CEvent%2CNatural"
+    title="insert(self: var TrackChunk; track: Event; i: Natural = 0)"><wbr />insert<span class="attachedType" style="visibility:hidden">Event</span></a></li>
+  <li><a class="reference" href="#delete%2CSMF%2CNatural"
+    title="delete(self: var SMF; i: Natural = 0)"><wbr />delete<span class="attachedType" style="visibility:hidden">SMF</span></a></li>
+  <li><a class="reference" href="#delete%2CTrackChunk%2CNatural"
+    title="delete(self: var TrackChunk; i: Natural = 0)"><wbr />delete<span class="attachedType" style="visibility:hidden"></span></a></li>
   <li><a class="reference" href="#isSMFFile%2Cstring"
     title="isSMFFile(path: string): bool"><wbr />is<wbr />SMFFile<span class="attachedType" style="visibility:hidden"></span></a></li>
   <li><a class="reference" href="#readSMF%2CFile"
@@ -1768,14 +1772,27 @@ SMFにトラックチャンクを追加する。
 トラックチャンクにMIDIイベントを追加する。
 
 </dd>
-<a id="delete,SMF,int"></a>
-<dt><pre><span class="Keyword">proc</span> <span class="Identifier">delete</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="smf.html#SMF"><span class="Identifier">SMF</span></a><span class="Other">;</span> <span class="Identifier">index</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="insert,SMF,TrackChunk,Natural"></a>
+<dt><pre><span class="Keyword">proc</span> <span class="Identifier">insert</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="smf.html#SMF"><span class="Identifier">SMF</span></a><span class="Other">;</span> <span class="Identifier">track</span><span class="Other">:</span> <span class="Identifier">TrackChunk</span><span class="Other">;</span> <span class="Identifier">i</span><span class="Other">:</span> <span class="Identifier">Natural</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+</dd>
+<a id="insert,TrackChunk,Event,Natural"></a>
+<dt><pre><span class="Keyword">proc</span> <span class="Identifier">insert</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">TrackChunk</span><span class="Other">;</span> <span class="Identifier">track</span><span class="Other">:</span> <a href="smf.html#Event"><span class="Identifier">Event</span></a><span class="Other">;</span> <span class="Identifier">i</span><span class="Other">:</span> <span class="Identifier">Natural</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<dd>
+
+
+</dd>
+<a id="delete,SMF,Natural"></a>
+<dt><pre><span class="Keyword">proc</span> <span class="Identifier">delete</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="smf.html#SMF"><span class="Identifier">SMF</span></a><span class="Other">;</span> <span class="Identifier">i</span><span class="Other">:</span> <span class="Identifier">Natural</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 TODO error
 
 </dd>
-<a id="delete,TrackChunk,int"></a>
-<dt><pre><span class="Keyword">proc</span> <span class="Identifier">delete</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">TrackChunk</span><span class="Other">;</span> <span class="Identifier">index</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
+<a id="delete,TrackChunk,Natural"></a>
+<dt><pre><span class="Keyword">proc</span> <span class="Identifier">delete</span><span class="Other">(</span><span class="Identifier">self</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">TrackChunk</span><span class="Other">;</span> <span class="Identifier">i</span><span class="Other">:</span> <span class="Identifier">Natural</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span> <span><span class="Other">{</span><span class="Other pragmadots">...</span><span class="Other">}</span></span><span class="pragmawrap"><span class="Other">{.</span><span class="pragma"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span></span><span class="Other">.}</span></span></pre></dt>
 <dd>
 TODO error
 
@@ -1863,7 +1880,7 @@ SMFのバイナリデータを書き込んだファイルを新規生成する�
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small>Made with Nim. Generated: 2019-05-22 11:53:19 UTC</small>
+        <small>Made with Nim. Generated: 2019-05-22 12:04:49 UTC</small>
       </div>
     </div>
   </div>
