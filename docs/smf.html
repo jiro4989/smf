@@ -1261,7 +1261,9 @@ function main() {
   <li><a class="reference" href="#MetaEvent"
     title="MetaEvent = ref object of Event
   deltaTime: uint32
+  metaPrefix: byte             ## 0xff
   metaType: byte
+  dataLength*: uint32
   data: seq[byte]"><wbr />Meta<wbr />Event<span class="attachedType" style="visibility:hidden"></span></a></li>
   <li><a class="reference" href="#SMF"
     title="SMF = object
@@ -1301,6 +1303,8 @@ function main() {
     title="statusCKPresure = 0xD0&#x27;u8"><wbr />status<wbr />CKPresure<span class="attachedType" style="visibility:hidden"></span></a></li>
   <li><a class="reference" href="#statusPitchBend"
     title="statusPitchBend = 0xE0&#x27;u8"><wbr />status<wbr />Pitch<wbr />Bend<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#statuses"
+    title="statuses = [0x80&#x27;u8, 0x90&#x27;u8, 0xA0&#x27;u8, 0xB0&#x27;u8, 0xC0&#x27;u8, 0xD0&#x27;u8, 0xE0&#x27;u8]"><wbr />statuses<span class="attachedType" style="visibility:hidden"></span></a></li>
   <li><a class="reference" href="#metaSequenceNumber"
     title="metaSequenceNumber = 0x00&#x27;u8"><wbr />meta<wbr />Sequence<wbr />Number<span class="attachedType" style="visibility:hidden"></span></a></li>
   <li><a class="reference" href="#metaText"
@@ -1333,6 +1337,9 @@ function main() {
     title="metaKeySignature = 0x59&#x27;u8"><wbr />meta<wbr />Key<wbr />Signature<span class="attachedType" style="visibility:hidden"></span></a></li>
   <li><a class="reference" href="#metaSequencerSpecific"
     title="metaSequencerSpecific = 0x7F&#x27;u8"><wbr />meta<wbr />Sequencer<wbr />Specific<span class="attachedType" style="visibility:hidden"></span></a></li>
+  <li><a class="reference" href="#metas"
+    title="metas = [0x00&#x27;u8, 0x01&#x27;u8, 0x02&#x27;u8, 0x03&#x27;u8, 0x04&#x27;u8, 0x05&#x27;u8, 0x06&#x27;u8, 0x07&#x27;u8, 0x20&#x27;u8,
+       0x21&#x27;u8, 0x2F&#x27;u8, 0x51&#x27;u8, 0x54&#x27;u8, 0x58&#x27;u8, 0x59&#x27;u8, 0x7F&#x27;u8]"><wbr />metas<span class="attachedType" style="visibility:hidden"></span></a></li>
 
   </ul>
 </li>
@@ -1476,7 +1483,9 @@ function main() {
 <a id="MetaEvent"></a>
 <dt><pre><a href="smf.html#MetaEvent"><span class="Identifier">MetaEvent</span></a> <span class="Other">=</span> <span class="Keyword">ref</span> <span class="Keyword">object</span> <span class="Keyword">of</span> <a href="smf.html#Event"><span class="Identifier">Event</span></a>
   <span class="Identifier">deltaTime</span><span class="Other">:</span> <span class="Identifier">uint32</span>
+  <span class="Identifier">metaPrefix</span><span class="Other">:</span> <span class="Identifier">byte</span>             <span class="Comment">## 0xff</span>
   <span class="Identifier">metaType</span><span class="Other">:</span> <span class="Identifier">byte</span>
+  <span class="Identifier">dataLength</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>
   <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span>
 </pre></dt>
 <dd>
@@ -1581,6 +1590,12 @@ MIDI event status
 MIDI event status
 
 </dd>
+<a id="statuses"></a>
+<dt><pre><span class="Identifier">statuses</span> <span class="Other">=</span> <span class="Other">[</span><span class="DecNumber">0x80'u8</span><span class="Other">,</span> <span class="DecNumber">0x90'u8</span><span class="Other">,</span> <span class="DecNumber">0xA0'u8</span><span class="Other">,</span> <span class="DecNumber">0xB0'u8</span><span class="Other">,</span> <span class="DecNumber">0xC0'u8</span><span class="Other">,</span> <span class="DecNumber">0xD0'u8</span><span class="Other">,</span> <span class="DecNumber">0xE0'u8</span><span class="Other">]</span></pre></dt>
+<dd>
+
+
+</dd>
 <a id="metaSequenceNumber"></a>
 <dt><pre><span class="Identifier">metaSequenceNumber</span> <span class="Other">=</span> <span class="DecNumber">0x00'u8</span></pre></dt>
 <dd>
@@ -1675,6 +1690,13 @@ Meta event type
 <dt><pre><span class="Identifier">metaSequencerSpecific</span> <span class="Other">=</span> <span class="DecNumber">0x7F'u8</span></pre></dt>
 <dd>
 Meta event type
+
+</dd>
+<a id="metas"></a>
+<dt><pre><span class="Identifier">metas</span> <span class="Other">=</span> <span class="Other">[</span><span class="DecNumber">0x00'u8</span><span class="Other">,</span> <span class="DecNumber">0x01'u8</span><span class="Other">,</span> <span class="DecNumber">0x02'u8</span><span class="Other">,</span> <span class="DecNumber">0x03'u8</span><span class="Other">,</span> <span class="DecNumber">0x04'u8</span><span class="Other">,</span> <span class="DecNumber">0x05'u8</span><span class="Other">,</span> <span class="DecNumber">0x06'u8</span><span class="Other">,</span> <span class="DecNumber">0x07'u8</span><span class="Other">,</span> <span class="DecNumber">0x20'u8</span><span class="Other">,</span>
+       <span class="DecNumber">0x21'u8</span><span class="Other">,</span> <span class="DecNumber">0x2F'u8</span><span class="Other">,</span> <span class="DecNumber">0x51'u8</span><span class="Other">,</span> <span class="DecNumber">0x54'u8</span><span class="Other">,</span> <span class="DecNumber">0x58'u8</span><span class="Other">,</span> <span class="DecNumber">0x59'u8</span><span class="Other">,</span> <span class="DecNumber">0x7F'u8</span><span class="Other">]</span></pre></dt>
+<dd>
+
 
 </dd>
 
@@ -1841,7 +1863,7 @@ SMFのバイナリデータを書き込んだファイルを新規生成する�
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br/>
-        <small>Made with Nim. Generated: 2019-05-22 08:28:24 UTC</small>
+        <small>Made with Nim. Generated: 2019-05-22 11:53:19 UTC</small>
       </div>
     </div>
   </div>

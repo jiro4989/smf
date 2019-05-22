@@ -105,7 +105,9 @@ type
     data*: seq[byte]
   MetaEvent* = ref object of Event
     deltaTime: uint32
+    metaPrefix: byte ## 0xff
     metaType: byte
+    dataLength*: uint32
     data: seq[byte]
 
   HeaderChunk = object
@@ -140,6 +142,13 @@ const
   statusProgramChange* = 0xC0'u8 ## MIDI event status
   statusCKPresure*     = 0xD0'u8 ## MIDI event status
   statusPitchBend*     = 0xE0'u8 ## MIDI event status
+  statuses*            = @[statusNoteOff,
+                           statusNoteOn,
+                           statusPKPresure,
+                           statusControlChange,
+                           statusProgramChange,
+                           statusCKPresure,
+                           statusPitchBend]
 
   metaSequenceNumber*    = 0x00'u8 ## Meta event type
   metaText*              = 0x01'u8 ## Meta event type
@@ -157,6 +166,22 @@ const
   metaTimeSignature*     = 0x58'u8 ## Meta event type
   metaKeySignature*      = 0x59'u8 ## Meta event type
   metaSequencerSpecific* = 0x7F'u8 ## Meta event type
+  metas*                 = @[metaSequenceNumber,
+                             metaText,
+                             metaCopyrightNotice,
+                             metaSequenceTrackName,
+                             metaInstrumentName,
+                             metaLyric,
+                             metaMarker,
+                             metaCuePoint,
+                             metaMIDIChannelPrefix,
+                             metaMIDIPort,
+                             metaEndOfTrack,
+                             metaSetTempo,
+                             metaSMTPEOffset,
+                             metaTimeSignature,
+                             metaKeySignature,
+                             metaSequencerSpecific]
 
 # ------------------------------------------------------------------------------
 #   utilities
@@ -225,8 +250,9 @@ method toBytes(event: MIDIEvent): seq[byte] =
 
 method toBytes(event: MetaEvent): seq[byte] =
   result.add event.deltaTime.toDeltaTime
+  result.add event.metaPrefix
   result.add event.metaType
-  result.add event.data.len.uint32.toDeltaTime
+  result.add event.dataLength.toDeltaTime
   result.add event.data
 
 proc toBytes(h: HeaderChunk): seq[byte] =
@@ -345,8 +371,20 @@ proc isSMFFile*(path: string): bool =
 # ------------------------------------------------------------------------------
 
 proc parseMIDIEvent(data: openArray[byte]): MIDIEvent =
+  let
+    deltaTime = data.parseDeltaTime
+    b = data[deltaTime.len..^1]
+    statusChannel = b[0]
+    status  = statusChannel and 0b1111_0000
+    channel = statusChannel and 0b0000_1111
+  assert(status in statuses, "MIDIイベントの先頭の文字が不正")
+
   new result
-  discard
+  result.deltaTime = deltaTime.deltaTimeToOctal
+  result.status    = status
+  result.channel   = channel
+  result.note      = b[1]
+  result.velocity  = b[2]
 
 proc parseSysExEvent(data: openArray[byte]): SysExEvent =
   ## TODO F7型には対応していない。
@@ -368,8 +406,26 @@ proc parseSysExEvent(data: openArray[byte]): SysExEvent =
     result.data.add v
 
 proc parseMetaEvent(data: openArray[byte]): MetaEvent =
+  let deltaTime = data.parseDeltaTime
+  var b = data[deltaTime.len..^1]
+  let mp = b[0] # meta prefix (0xff)
+  assert(mp == metaPrefix, "MetaPrefixが不正: " & $mp)
+
+  let mt = b[1] # meta type
+  assert(mt in metas, "MIDIイベントの先頭の文字が不正")
+
   new result
-  discard
+  result.deltaTime = deltaTime.deltaTimeToOctal
+  result.metaPrefix = mp
+  result.metaType = mt
+
+  b = b[2..^1]
+  let dl = b.parseDeltaTime
+  result.dataLength = dl.deltaTimeToOctal
+
+  b = b[dl.len..^1]
+  for v in b[0..<result.dataLength]:
+    result.data.add v
 
 proc parseHeaderChunk(data: openArray[byte]): HeaderChunk =
   ## ヘッドチャンクを一つ取得する。

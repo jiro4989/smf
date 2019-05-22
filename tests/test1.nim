@@ -85,7 +85,23 @@ suite "toBytes(MIDIEvent)":
 
 suite "toBytes(MetaEvent)":
   test "Normal":
-    discard
+    check MetaEvent(deltaTime: 0,
+                    metaPrefix: metaPrefix,
+                    metaType: metaText,
+                    dataLength: 1,
+                    data: @[1'u8]).toBytes == @[0'u8, 0xff, metaText, 1, 1]
+  test "Delta time 128":
+    check MetaEvent(deltaTime: 128,
+                    metaPrefix: metaPrefix,
+                    metaType: metaText,
+                    dataLength: 127,
+                    data: @[1'u8]).toBytes == @[129'u8, 0, 0xff, metaText, 127, 1]
+  test "Data length 128":
+    check MetaEvent(deltaTime: 128,
+                    metaPrefix: metaPrefix,
+                    metaType: metaText,
+                    dataLength: 128,
+                    data: @[1'u8]).toBytes == @[129'u8, 0, 0xff, metaText, 129, 0, 1]
 
 suite "toBytes(HeaderChunk)":
   test "Normal":
@@ -153,7 +169,7 @@ suite "delete(SMF)":
     smfObj.delete(0)
     check smfObj.headerChunk.trackCount == 0
 
-    expect(RangeError):
+    expect RangeError:
       smfObj.delete(0)
 
 suite "isSMFFile":
@@ -163,6 +179,15 @@ suite "isSMFFile":
     check "smf.nimble".isSMFFile == false
   test "Not exist file":
     check "not_exist".isSMFFile == false
+
+suite "parseMIDIEvent":
+  test "statusNoteOn":
+    check @[0'u8, 0x80, 1, 2].parseMIDIEvent[] == MIDIEvent(deltaTime: 0, status: statusNoteOff, channel: 0, note: 1, velocity: 2)[]
+  test "statusNoteOff":
+    check @[129'u8, 0, 0x9F, 1, 2].parseMIDIEvent[] == MIDIEvent(deltaTime: 128, status: statusNoteOn, channel: 0xF, note: 1, velocity: 2)[]
+  test "Illegal status":
+    expect AssertionError:
+      discard @[0'u8, 0x10, 1, 2].parseMIDIEvent[]
 
 suite "parseSysExEvent":
   test "F0":
@@ -176,6 +201,15 @@ suite "parseSysExEvent":
     var ret = 0'u8.repeat(127)
     ret.add 0xf7
     check data.parseSysExEvent[] == SysExEvent(deltaTime: 1, eventType: 0xf0, dataLength: 128, data: ret)[]
+
+suite "parseMetaEvent":
+  test "metaText":
+    check @[0'u8, metaPrefix, metaText, 1, 1].parseMetaEvent[] == MetaEvent(deltaTime: 0, metaPrefix: metaPrefix, metaType: metaText, dataLength: 1, data: @[1'u8])[]
+  test "delta time":
+    check @[129'u8, 0, metaPrefix, metaText, 1, 1].parseMetaEvent[] == MetaEvent(deltaTime: 128, metaPrefix: metaPrefix, metaType: metaText, dataLength: 1, data: @[1'u8])[]
+  test "Illegal meta type":
+    expect AssertionError:
+      discard @[0'u8, metaPrefix, 0xFF, 1, 1].parseMetaEvent
 
 suite "Read/Write example":
   test "Normal":
