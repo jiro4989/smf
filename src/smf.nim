@@ -150,8 +150,7 @@ proc toDeltaTime(n: uint32): seq[byte] =
   ##
   ## 127             0b0111_1111
   ## 128 0b1000_0001 0b0000_0000
-  if n <= 0:
-    return @[0'u8]
+  if n <= 0: return @[0'u8]
   var m = n
   var i: int
   while 0'u32 < m:
@@ -260,7 +259,7 @@ proc add*(self: var SMF, track: TrackChunk) =
 proc add*(self: var TrackChunk, event: MIDIEvent) =
   ## トラックチャンクにMIDIイベントを追加する。
   self.data.add event
-  self.dataLength += uint32(event.toBytes.len * 4)
+  self.dataLength += uint32(event.toBytes.len)
 
 proc delete*(self: var SMF, index: int) =
   ## TODO error
@@ -304,7 +303,7 @@ proc parseTrackChunk(data: openArray[byte]): TrackChunk =
   while part3+3 <= len(data):
     let part = data[part3..<part3+3]
     if part == endOfTrack:
-      let data = data[startPos..<part3+3]
+      # let data = data[startPos..<part3+3]
       ## TODO
       return
     inc part3
@@ -325,11 +324,14 @@ proc readSMF*(f: File): SMF =
   var data = f.readAll.mapIt(it.byte)
   result.headerChunk = data.parseHeaderChunk
 
+  # ヘッダチャンクは除外
   data = data[headerChunkLength..^1]
-  while 0 < len(data):
+  for i in 1'u16..result.headerChunk.trackCount:
+    # トラックチャンクの取得
     let track = data.parseTrackChunk
     result.trackChunks.add track
-    data = data[track.dataLength..^1]
+    # 1つ目のトラックチャンクを除外
+    data = data[int(8'u32+track.dataLength)..^1]
 
 proc readSMFFile*(path: string): SMF =
   ## SMFファイルを読み込む。

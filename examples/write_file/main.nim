@@ -11,3 +11,7 @@ block:
   smfObj.add track
 
 writeSMFFile("test.mid", smfObj)
+
+let smfObj2 = readSMFFile("test.mid")
+echo smfObj
+echo smfObj2
