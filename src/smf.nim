@@ -88,7 +88,7 @@
 ## * https://qiita.com/PianoScoreJP/items/2f03ae61d91db0334d45
 ## * https://www.g200kg.com/jp/docs/tech/smf.html
 
-from algorithm import reverse
+from algorithm import reversed
 from sequtils import mapIt, foldl
 import streams
 
@@ -98,6 +98,10 @@ type
     deltaTime*: uint32
     status*: byte
     channel*, note*, velocity*: byte
+  SysExEvent* = ref object of Event
+    eventType*: byte
+    dataLength*: uint32
+    data*: seq[byte]
   MetaEvent* = ref object of Event
     deltaTime: uint32
     metaType: byte
@@ -163,6 +167,24 @@ proc padZero(data: openArray[byte], n: int): seq[byte] =
   for i in 1..diff:
     result.insert(0, 0)
 
+proc deltaTimeToOctal(deltaTime: openArray[byte]): uint32 =
+  ## 1000_0001 0111_1111 ->           1111_1111
+  ## 1000_0011 0111_1111 -> 0000_0001 1111_1111
+  let rev = deltaTime.reversed
+  for i, v in rev:
+    result += ((v.uint32 and 0b0111_1111) shl (7 * i))
+
+proc parseDeltaTime(data: openArray[byte]): seq[byte] =
+  ## 先頭のデルタタイムを取得する。
+  if data.len < 1: return
+  var i: int
+  var b = data[i]
+  result.add b
+  while (b and 0b1000_0000) == 0b1000_0000:
+    inc i
+    b = data[i]
+    result.add b
+
 proc toDeltaTime(n: uint32): seq[byte] = 
   ## 10進数をデルタタイムに変換する。
   ## デルタタイムは1byteのデータのうち、8bit目をデータが継続しているか、のフラグに使用する。
@@ -181,7 +203,7 @@ proc toDeltaTime(n: uint32): seq[byte] =
     result.add b
     m = m shr 7
     inc i
-  result.reverse
+  result = result.reversed
 
 proc toBytes(n: uint32): seq[byte] =
   if n <= 0: return @[0'u8]
@@ -190,7 +212,7 @@ proc toBytes(n: uint32): seq[byte] =
     let x = m and 255
     result.add x.byte
     m = m shr 8
-  result.reverse
+  result = result.reversed
 
 method toBytes(event: Event): seq[byte] {.base.} = discard
 
@@ -321,7 +343,31 @@ proc isSMFFile*(path: string): bool =
 #   read/write file
 # ------------------------------------------------------------------------------
 
+proc parseMIDIEvent(data: openArray[byte]): MIDIEvent =
+  new result
+  discard
+
+proc parseSysExEvent(data: openArray[byte]): SysExEvent =
+  ## TODO F7型には対応していない。
+  let evType = data[0]
+  assert(evType in [0xf0'u8, 0xf7], "SysExイベントの先頭の文字が不正")
+  new result
+  result.eventType = evType
+
+  var b = data[1..^1]
+  let dl = b.parseDeltaTime
+  result.dataLength = dl.deltaTimeToOctal
+
+  b = b[dl.len..^1]
+  for v in b[0..<result.dataLength]:
+    result.data.add v
+
+proc parseMetaEvent(data: openArray[byte]): MetaEvent =
+  new result
+  discard
+
 proc parseHeaderChunk(data: openArray[byte]): HeaderChunk =
+  ## ヘッドチャンクを一つ取得する。
   result.chunkType  = data[0..<4]            # 4byte
   result.dataLength = data[4..<8].toUint32   # 4byte
   result.format     = data[8..<10]           # 2byte
@@ -329,6 +375,7 @@ proc parseHeaderChunk(data: openArray[byte]): HeaderChunk =
   result.timeUnit   = data[12..<14].toUint16 # 2byte
 
 proc parseTrackChunk(data: openArray[byte]): TrackChunk =
+  ## 先頭のトラックチャンクを一つ取得する。
   result.chunkType  = data[0..<4]          # 4byte
   result.dataLength = data[4..<8].toUint32 # 4byte
   var startPos = 8

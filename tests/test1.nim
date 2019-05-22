@@ -12,6 +12,33 @@ suite "padZero":
     check [1'u8, 2].padZero(2) == @[1'u8, 2]
     check [1'u8, 2].padZero(4) == @[0'u8, 0, 1, 2]
 
+suite "deltaTimeToOctal":
+  test "127 (1 element)":
+    check @[127'u8].deltaTimeToOctal == 127
+  test "128 ~ 16383 (2 element)":
+    check @[129'u8, 0].deltaTimeToOctal == 128
+    check @[129'u8, 1].deltaTimeToOctal == 129
+    check @[129'u8, 127].deltaTimeToOctal == 255
+    check @[130'u8, 0].deltaTimeToOctal == 256
+    check @[0b1111_1111'u8, 0b0111_1111].deltaTimeToOctal == 16383
+  test "16384 (3 element)":
+    check @[0b1000_0001'u8, 0b1000_0000, 0b0000_0000].deltaTimeToOctal == 16384
+
+suite "parseDeltaTime":
+  test "0 ~ 127 (1 elements)":
+    check [0'u8, 2, 3].parseDeltaTime == @[0'u8]
+    check [1'u8, 2, 3].parseDeltaTime == @[1'u8]
+    check [127'u8, 2, 3].parseDeltaTime == @[127'u8]
+  test "128 ~ (2 elements)":
+    check [129'u8, 0, 3].parseDeltaTime == @[129'u8, 0]
+    check [129'u8, 127, 3].parseDeltaTime == @[129'u8, 127]
+  test "(3 elements)":
+    check [129'u8, 129, 0].parseDeltaTime == @[129'u8, 129, 0]
+    check [129'u8, 129, 1].parseDeltaTime == @[129'u8, 129, 1]
+  test "Empty data":
+    var empty: seq[byte]
+    check empty.parseDeltaTime == empty
+
 suite "toDeltaTime":
   when false:
     for i in 0..128*128:
@@ -34,12 +61,18 @@ suite "toDeltaTime":
     check 2097151.toDeltaTime == @[0b1111_1111'u8, 0b1111_1111, 0b0111_1111]
 
 suite "toBytes(uint32)":
-  test "0 == 0": check 0.toBytes == @[0x0'u8]
-  test "1 == 1": check 1.toBytes == @[0x1'u8]
-  test "15 == F": check 15.toBytes == @[0xF'u8]
-  test "255 == FF": check 255.toBytes == @[0xFF'u8]
-  test "256 == 1 0": check 256.toBytes == @[0x1'u8, 0]
-  test "65535 == FF FF": check 65535.toBytes == @[0xFF'u8, 0xFF]
+  test "0 == 0":
+    check 0.toBytes == @[0x0'u8]
+  test "1 == 1":
+    check 1.toBytes == @[0x1'u8]
+  test "15 == F":
+    check 15.toBytes == @[0xF'u8]
+  test "255 == FF":
+    check 255.toBytes == @[0xFF'u8]
+  test "256 == 1 0":
+    check 256.toBytes == @[0x1'u8, 0]
+  test "65535 == FF FF":
+    check 65535.toBytes == @[0xFF'u8, 0xFF]
 
 suite "toBytes(MIDIEvent)":
   test "Normal":
@@ -77,11 +110,16 @@ suite "toBytes(SMF)":
     discard
 
 suite "toUint16":
-  test "0 0 == 0": check @[0'u8, 0].toUint16 == 0
-  test "0 1 == 1": check @[0'u8, 1].toUint16 == 1
-  test "0 FF == 255": check @[0'u8, 0xFF].toUint16 == 255
-  test "1 0 == 256": check @[1'u8, 0].toUint16 == 256
-  test "FF FF == 65535": check @[0xFF'u8, 0xFF].toUint16 == 65535
+  test "0 0 == 0":
+    check @[0'u8, 0].toUint16 == 0
+  test "0 1 == 1":
+    check @[0'u8, 1].toUint16 == 1
+  test "0 FF == 255":
+    check @[0'u8, 0xFF].toUint16 == 255
+  test "1 0 == 256":
+    check @[1'u8, 0].toUint16 == 256
+  test "FF FF == 65535":
+    check @[0xFF'u8, 0xFF].toUint16 == 65535
 
 suite "toUint32":
   discard
@@ -111,15 +149,32 @@ suite "delete(SMF)":
     smfObj.add track
     smfObj.delete(1)
     check smfObj.headerChunk.trackCount == 1
+
     smfObj.delete(0)
     check smfObj.headerChunk.trackCount == 0
+
     expect(RangeError):
       smfObj.delete(0)
 
 suite "isSMFFile":
-  test "SMF file": check midiFile.isSMFFile
-  test "Not SMF file": check "smf.nimble".isSMFFile == false
-  test "Not exist file": check "not_exist".isSMFFile == false
+  test "SMF file":
+    check midiFile.isSMFFile
+  test "Not SMF file":
+    check "smf.nimble".isSMFFile == false
+  test "Not exist file":
+    check "not_exist".isSMFFile == false
+
+suite "parseSysExEvent":
+  test "F0":
+    check @[0xf0'u8, 1, 0xf7].parseSysExEvent[] == SysExEvent(eventType: 0xf0, dataLength: 1, data: @[0xf7'u8])[]
+  test "F0 (data length is 2)":
+    var data = @[0xf0'u8, 129, 0]
+    data.add 0'u8.repeat(127)
+    data.add 0xf7
+
+    var ret = 0'u8.repeat(127)
+    ret.add 0xf7
+    check data.parseSysExEvent[] == SysExEvent(eventType: 0xf0, dataLength: 128, data: ret)[]
 
 suite "Read/Write example":
   test "Normal":
