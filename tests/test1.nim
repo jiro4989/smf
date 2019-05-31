@@ -5,6 +5,8 @@ include smf
 
 const midiFile = "tests/test.mid"
 
+doAssert [0x4d, 0x54, 0x68, 0x64].mapIt(it.char) == @['M', 'T', 'h', 'd']
+
 suite "padZero":
   test "Normal":
     check [0'u8].padZero(2) == @[0'u8, 0]
