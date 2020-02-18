@@ -1,6 +1,11 @@
 import streams
 
 type
+  Status = enum
+    stNoteOff = 0b1000_0000'u8
+    stNoteOn = 0b1001_0000'u8
+    stControlChange = 0b1011_0000'u8
+
   SMF* = ref object
   HeaderChunk* = ref object
     chunkType*: string
@@ -31,13 +36,22 @@ type
     dataLength*: uint32
     data*: seq[byte]
 
+  ChannelMessage* = ref object
+    channel*: uint8
+    case status*: Status
+    of stNoteOff, stNoteOn:
+      note*: uint8
+      velocity*: uint8
+    of stControlChange:
+      control*: uint8
+      data*: uint8
+
 proc readDeltaTime(strm: Stream): seq[byte] =
-  var i: int
-  var b = data[i]
-  result.add b
+  ## デルタタイムを取り出す。
+  var b = strm.readUint8()
+  result.add(b)
   while (b and 0b1000_0000) == 0b1000_0000:
-    inc i
-    b = data[i]
+    b = strm.readUint8()
     result.add b
 
 proc readHeaderChunk(strm: Stream): HeaderChunk =
@@ -49,7 +63,17 @@ proc readHeaderChunk(strm: Stream): HeaderChunk =
   result.timeUnit = strm.readUint16()
 
 proc readMIDIEvent(strm: Stream): MIDIEvent =
-  discard
+  let delta = strm.readDeltaTime()
+  let head = strm.readUint8()
+  result.status = ChannelMessage(status: head and 0b1111_0000'u8)
+  result.channel = head and 0b0000_1111'u8
+  case result.status
+  of stNoteOff, stNoteOn:
+    result.note = strm.readUint8()
+    result.velocity = strm.readUint8()
+  of stControlChange:
+    result.control = strm.readUint8()
+    result.data = strm.readUint8()
 
 proc readSysExEvent(strm: Stream): SysExEvent =
   discard
