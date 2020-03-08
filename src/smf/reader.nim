@@ -97,9 +97,12 @@ proc readMIDIEvent(strm: Stream): MIDIEvent =
 
 proc readSysExEvent(strm: Stream): SysExEvent =
   result = SysExEvent()
-  result.deltaTime = strm.readDeltaTime()
   result.eventType = strm.readUint8()
-  ## TODO
+  doAssert result.eventType in [0xf0'u8, 0xf7], "SysExイベントの先頭の文字が不正"
+  result.deltaTime = strm.readDeltaTime()
+  for i in 0'u32 ..< result.deltaTime:
+    result.data.add(strm.readUint8())
+  doAssert result.data[^1] == 0xf7'u8, "SysExイベント終端の文字が不正"
 
 proc readMetaEvent(strm: Stream): MetaEvent =
   ## TODO
