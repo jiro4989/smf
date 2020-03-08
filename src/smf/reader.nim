@@ -1,11 +1,17 @@
 import streams
 
 type
-  Status = enum
-    stNoteOff = 0b1000_0000'u8
-    stNoteOn = 0b1001_0000'u8
-    stControlChange = 0b1011_0000'u8
+  Status = uint8
+  DeltaTime = uint32
 
+const
+  stNoteOff: Status = 0b1000_0000'u8
+  stNoteOn: Status = 0b1001_0000'u8
+  stControlChange: Status = 0b1011_0000'u8
+  stF0: Status = 0b1111_0000'u8
+  stF7: Status = 0b1111_0111'u8
+
+type
   SMF* = ref object
   HeaderChunk* = ref object
     chunkType*: string
@@ -21,9 +27,18 @@ type
 
   Event* = ref object of RootObj
   MIDIEvent* = ref object of Event
-    deltaTime*: uint32
-    status*: byte
-    channel*, note*, velocity*: byte
+    deltaTime*: DeltaTime
+    ## 3 byte
+    channel*: uint8 ## 1/2 byte (0000 xxxx)
+    case status*: Status ## 1/2 byte (xxxx 0000)
+    of stNoteOff, stNoteOn:
+      note*: uint8 ## 1 byte
+      velocity*: uint8 ## 1 byte
+    of stControlChange:
+      control*: uint8 ## 1 byte
+      data*: uint8 ## 1 byte
+    else:
+      discard
   SysExEvent* = ref object of Event
     deltaTime*: uint32
     eventType*: byte
@@ -45,14 +60,17 @@ type
     of stControlChange:
       control*: uint8
       data*: uint8
+    else:
+      discard
 
-proc readDeltaTime(strm: Stream): seq[byte] =
+proc readDeltaTime(strm: Stream): DeltaTime =
   ## デルタタイムを取り出す。
   var b = strm.readUint8()
-  result.add(b)
+  result = DeltaTime(b)
   while (b and 0b1000_0000) == 0b1000_0000:
+    result = result shl 8
     b = strm.readUint8()
-    result.add b
+    result += DeltaTime(b)
 
 proc readHeaderChunk(strm: Stream): HeaderChunk =
   result = HeaderChunk()
@@ -63,9 +81,9 @@ proc readHeaderChunk(strm: Stream): HeaderChunk =
   result.timeUnit = strm.readUint16()
 
 proc readMIDIEvent(strm: Stream): MIDIEvent =
-  let delta = strm.readDeltaTime()
+  result.deltaTime = strm.readDeltaTime()
   let head = strm.readUint8()
-  result.status = ChannelMessage(status: head and 0b1111_0000'u8)
+  result.status = head and 0b1111_0000'u8
   result.channel = head and 0b0000_1111'u8
   case result.status
   of stNoteOff, stNoteOn:
@@ -74,6 +92,8 @@ proc readMIDIEvent(strm: Stream): MIDIEvent =
   of stControlChange:
     result.control = strm.readUint8()
     result.data = strm.readUint8()
+  else:
+    discard
 
 proc readSysExEvent(strm: Stream): SysExEvent =
   discard
