@@ -40,14 +40,14 @@ type
     else:
       discard
   SysExEvent* = ref object of Event
-    deltaTime*: DeltaTime
     eventType*: byte
+    deltaTime*: DeltaTime
     dataLength*: uint32
     data*: seq[byte]
   MetaEvent* = ref object of Event
-    deltaTime*: uint32
     metaPrefix*: byte ## 0xff
     metaType*: byte
+    deltaTime*: uint32
     dataLength*: uint32
     data*: seq[byte]
 
@@ -105,8 +105,12 @@ proc readSysExEvent(strm: Stream): SysExEvent =
   doAssert result.data[^1] == 0xf7'u8, "SysExイベント終端の文字が不正"
 
 proc readMetaEvent(strm: Stream): MetaEvent =
-  ## TODO
-  discard
+  result = MetaEvent()
+  result.metaPrefix = strm.readUint8()
+  result.metaType = strm.readUint8()
+  result.deltaTime = strm.readDeltaTime()
+  for i in 0'u32 ..< result.deltaTime:
+    result.data.add(strm.readUint8())
 
 proc readTrackChunk(strm: Stream): TrackChunk =
   result = TrackChunk()
