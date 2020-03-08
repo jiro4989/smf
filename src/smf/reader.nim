@@ -40,7 +40,7 @@ type
     else:
       discard
   SysExEvent* = ref object of Event
-    deltaTime*: uint32
+    deltaTime*: DeltaTime
     eventType*: byte
     dataLength*: uint32
     data*: seq[byte]
@@ -96,9 +96,13 @@ proc readMIDIEvent(strm: Stream): MIDIEvent =
     discard
 
 proc readSysExEvent(strm: Stream): SysExEvent =
-  discard
+  result = SysExEvent()
+  result.deltaTime = strm.readDeltaTime()
+  result.eventType = strm.readUint8()
+  ## TODO
 
 proc readMetaEvent(strm: Stream): MetaEvent =
+  ## TODO
   discard
 
 proc readTrackChunk(strm: Stream): TrackChunk =
