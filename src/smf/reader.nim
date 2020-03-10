@@ -10,9 +10,13 @@ const
   stControlChange: Status = 0b1011_0000'u8
   stF0: Status = 0b1111_0000'u8
   stF7: Status = 0b1111_0111'u8
+  stMetaPrefix: Status = 0b1111_1111'u8
 
 type
   SMF* = ref object
+    header*: HeaderChunk
+    track*: TrackChunk
+
   HeaderChunk* = ref object
     chunkType*: string
     dataLength*: uint32
@@ -116,8 +120,24 @@ proc readTrackChunk(strm: Stream): TrackChunk =
   result = TrackChunk()
   result.chunkType = strm.readStr(4)
   result.dataLength = strm.readUint32()
+  while true:
+    var pref = strm.peekUint8()
+    case pref
+    of stF0, stF7:
+      result.data.add(strm.readSysExEvent())
+    of stMetaPrefix:
+      result.data.add(strm.readMetaEvent())
+    else:
+      pref = pref and 0b1111_0000
+      case pref
+      of stNoteOff, stNoteOn, stControlChange:
+        result.data.add(strm.readMIDIEvent())
+      else:
+        doAssert false, "不正なデータ"
+        discard
 
 proc readSMF(filename: string): SMF =
+  result = SMF()
   var strm = newFileStream(filename, fmRead)
-  var head = strm.readHeaderChunk()
-  var track = strm.readTrackChunk()
+  result.header = strm.readHeaderChunk()
+  result.track = strm.readTrackChunk()
