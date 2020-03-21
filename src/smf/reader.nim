@@ -1,4 +1,4 @@
-import streams
+import streams, sugar, endians
 
 type
   Status = uint8
@@ -24,7 +24,7 @@ type
     trackCount*: uint16
     timeUnit*: uint16
 
-  TrackChunk* = object
+  TrackChunk* = ref object
     chunkType*: string
     dataLength*: uint32
     data*: seq[EventSet]
@@ -70,38 +70,58 @@ type
     else:
       discard
 
-proc readDeltaTime(strm: Stream): DeltaTime =
+template decho(x: untyped) =
+  when not defined release:
+    dump x
+
+proc readDeltaTime(strm: Stream): (DeltaTime, uint32) =
   ## デルタタイムを取り出す。
-  var b = strm.readUint8()
-  result = DeltaTime(b)
-  while (b and 0b1000_0000) == 0b1000_0000:
-    result = result shl 8
+  var
     b = strm.readUint8()
-    result += DeltaTime(b)
+    deltaTime = DeltaTime(b)
+    size = 1'u32
+  while (b and 0b1000_0000) == 0b1000_0000:
+    inc(size)
+    deltaTime = deltaTime shl 8
+    b = strm.readUint8()
+    deltaTime += DeltaTime(b)
+  result = (deltaTime, size)
 
 proc readHeaderChunk(strm: Stream): HeaderChunk =
   result = HeaderChunk()
   result.chunkType = strm.readStr(4)
-  result.dataLength = strm.readUint32()
+
+  # default: readUint32 returns a value of little endians.
+  var littleDataLength = strm.readUint32()
+  bigEndian32(addr(result.dataLength), addr(littleDataLength))
+
   result.format = strm.readUint16()
   result.trackCount = strm.readUint16()
   result.timeUnit = strm.readUint16()
+  decho result[]
 
 proc readMIDIEvent(strm: Stream): MIDIEvent =
-  let head = strm.readUint8()
-  inc(result.size)
-  result.status = head and 0b1111_0000'u8
-  result.channel = head and 0b0000_1111'u8
-  case result.status
+  let
+    head = strm.readUint8()
+    status = head and 0b1111_0000'u8
+    channel = head and 0b0000_1111'u8
+  case status
   of stNoteOff, stNoteOn:
-    result.note = strm.readUint8()
-    result.velocity = strm.readUint8()
+    let note = strm.readUint8()
+    let velocity = strm.readUint8()
+    result = MIDIEvent(
+      size: 3'u8,
+      status: status, channel: channel,
+      note: note, velocity: velocity)
   of stControlChange:
-    result.control = strm.readUint8()
-    result.data = strm.readUint8()
+    let control = strm.readUint8()
+    let data = strm.readUint8()
+    result = MIDIEvent(
+      size: 3'u8,
+      status: status, channel: channel,
+      control: control, data: data)
   else:
-    discard
-  inc(result.size, 2)
+    doAssert false, "不正なデータ"
 
 proc readSysExEvent(strm: Stream, deltaTime: DeltaTime): SysExEvent =
   result = SysExEvent()
@@ -127,11 +147,22 @@ proc readTrackChunk(strm: Stream): TrackChunk =
   ## Reads track chunk.
   result = TrackChunk()
   result.chunkType = strm.readStr(4)
-  result.dataLength = strm.readUint32()
+
+  # default: readUint32 returns a value of little endians.
+  var littleDataLength = strm.readUint32()
+  bigEndian32(addr(result.dataLength), addr(littleDataLength))
+
   var size: uint32
   while size < result.dataLength:
     var evtSet = EventSet()
-    evtSet.deltaTime = strm.readDeltaTime()
+    let (deltaTime, deltaTimeSize) = strm.readDeltaTime()
+    evtSet.deltaTime = deltaTime
+    size += deltaTimeSize
+    decho result[]
+    decho evtSet[]
+    decho size
+    decho result.dataLength
+    decho "---------------"
     var pref = strm.peekUint8()
     case pref
     of stF0, stF7:
@@ -152,8 +183,10 @@ proc readTrackChunk(strm: Stream): TrackChunk =
       else:
         doAssert false, "不正なデータ"
 
-proc readSMF(filename: string): SMF =
+proc readSMF*(filename: string): SMF =
   result = SMF()
   var strm = newFileStream(filename, fmRead)
   result.header = strm.readHeaderChunk()
   result.track = strm.readTrackChunk()
+
+#proc `$`*(self: SMF): string = 
