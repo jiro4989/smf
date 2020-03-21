@@ -167,6 +167,8 @@ proc readTrackChunk(strm: Stream): TrackChunk =
     size += deltaTimeSize
     decho result[]
     decho evtSet[]
+    # FIXME: なんでコレがクラッシュするんだろう
+    # decho $evtSet.event
     decho size
     decho result.dataLength
     decho "---------------"
@@ -203,3 +205,12 @@ proc readSMF*(filename: string): SMF =
   result.track = strm.readTrackChunk()
 
 #proc `$`*(self: SMF): string = 
+
+proc `$`*(self: MIDIEvent): string = $self[]
+proc `$`*(self: SysExEvent): string = $self[]
+proc `$`*(self: MetaEvent): string = $self[]
+proc `$`*(self: Event): string =
+  case self.kind
+  of ekMIDI: $cast[MIDIEvent](self)
+  of ekSysEx: $cast[SysExEvent](self)
+  of ekMeta: $cast[MetaEvent](self)
