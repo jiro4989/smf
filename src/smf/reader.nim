@@ -1,5 +1,7 @@
 import streams, sugar, endians
 
+import consts
+
 type
   Status = uint8
   DeltaTime = uint32
@@ -34,8 +36,11 @@ type
     deltaTime*: DeltaTime
     event*: Event
 
+  EventKind* = enum
+    ekMIDI, ekSysEx, ekMeta
   Event* = ref object of RootObj
     size*: uint32
+    kind*: EventKind
   MIDIEvent* = ref object of Event
     ## 3 byte
     channel*: uint8 ## 1/2 byte (0000 xxxx)
@@ -111,6 +116,7 @@ proc readMIDIEvent(strm: Stream): MIDIEvent =
     let velocity = strm.readUint8()
     result = MIDIEvent(
       size: 3'u8,
+      kind: ekMIDI,
       status: status, channel: channel,
       note: note, velocity: velocity)
   of stControlChange:
@@ -118,13 +124,14 @@ proc readMIDIEvent(strm: Stream): MIDIEvent =
     let data = strm.readUint8()
     result = MIDIEvent(
       size: 3'u8,
+      kind: ekMIDI,
       status: status, channel: channel,
       control: control, data: data)
   else:
     doAssert false, "不正なデータ"
 
 proc readSysExEvent(strm: Stream, deltaTime: DeltaTime): SysExEvent =
-  result = SysExEvent()
+  result = SysExEvent(kind: ekSysEx)
   result.eventType = strm.readUint8()
   inc(result.size)
   doAssert result.eventType in [0xf0'u8, 0xf7], "SysExイベントの先頭の文字が不正"
@@ -134,7 +141,7 @@ proc readSysExEvent(strm: Stream, deltaTime: DeltaTime): SysExEvent =
   doAssert result.data[^1] == 0xf7'u8, "SysExイベント終端の文字が不正"
 
 proc readMetaEvent(strm: Stream, deltaTime: DeltaTime): MetaEvent =
-  result = MetaEvent()
+  result = MetaEvent(kind: ekMeta)
   result.metaPrefix = strm.readUint8()
   inc(result.size)
   result.metaType = strm.readUint8()
@@ -182,6 +189,12 @@ proc readTrackChunk(strm: Stream): TrackChunk =
         result.data.add(evtSet)
       else:
         doAssert false, "不正なデータ"
+  let eot = result.data[^1].event
+  let meta = cast[MetaEvent](eot)
+  echo meta.kind
+  # FIXME: 明らかにおかしい
+  #doAssert meta.kind == ekMeta, "終端イベントタイプ不正"
+  #doAssert meta.metaType == metaEndOfTrack, "終端データ不正"
 
 proc readSMF*(filename: string): SMF =
   result = SMF()
