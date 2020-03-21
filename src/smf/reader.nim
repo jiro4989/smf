@@ -27,11 +27,16 @@ type
   TrackChunk* = object
     chunkType*: string
     dataLength*: uint32
-    data*: seq[Event]
+    data*: seq[EventSet]
+
+  EventSet* = ref object
+    ## An object that has delta time and event data.
+    deltaTime*: DeltaTime
+    event*: Event
 
   Event* = ref object of RootObj
+    size*: uint32
   MIDIEvent* = ref object of Event
-    deltaTime*: DeltaTime
     ## 3 byte
     channel*: uint8 ## 1/2 byte (0000 xxxx)
     case status*: Status ## 1/2 byte (xxxx 0000)
@@ -45,13 +50,11 @@ type
       discard
   SysExEvent* = ref object of Event
     eventType*: byte
-    deltaTime*: DeltaTime
     dataLength*: uint32
     data*: seq[byte]
   MetaEvent* = ref object of Event
     metaPrefix*: byte ## 0xff
     metaType*: byte
-    deltaTime*: uint32
     dataLength*: uint32
     data*: seq[byte]
 
@@ -85,8 +88,8 @@ proc readHeaderChunk(strm: Stream): HeaderChunk =
   result.timeUnit = strm.readUint16()
 
 proc readMIDIEvent(strm: Stream): MIDIEvent =
-  result.deltaTime = strm.readDeltaTime()
   let head = strm.readUint8()
+  inc(result.size)
   result.status = head and 0b1111_0000'u8
   result.channel = head and 0b0000_1111'u8
   case result.status
@@ -98,43 +101,56 @@ proc readMIDIEvent(strm: Stream): MIDIEvent =
     result.data = strm.readUint8()
   else:
     discard
+  inc(result.size, 2)
 
-proc readSysExEvent(strm: Stream): SysExEvent =
+proc readSysExEvent(strm: Stream, deltaTime: DeltaTime): SysExEvent =
   result = SysExEvent()
   result.eventType = strm.readUint8()
+  inc(result.size)
   doAssert result.eventType in [0xf0'u8, 0xf7], "SysExイベントの先頭の文字が不正"
-  result.deltaTime = strm.readDeltaTime()
-  for i in 0'u32 ..< result.deltaTime:
+  for i in 0'u32 ..< deltaTime:
     result.data.add(strm.readUint8())
+    inc(result.size)
   doAssert result.data[^1] == 0xf7'u8, "SysExイベント終端の文字が不正"
 
-proc readMetaEvent(strm: Stream): MetaEvent =
+proc readMetaEvent(strm: Stream, deltaTime: DeltaTime): MetaEvent =
   result = MetaEvent()
   result.metaPrefix = strm.readUint8()
+  inc(result.size)
   result.metaType = strm.readUint8()
-  result.deltaTime = strm.readDeltaTime()
-  for i in 0'u32 ..< result.deltaTime:
+  inc(result.size)
+  for i in 0'u32 ..< deltaTime:
     result.data.add(strm.readUint8())
+    inc(result.size)
 
 proc readTrackChunk(strm: Stream): TrackChunk =
+  ## Reads track chunk.
   result = TrackChunk()
   result.chunkType = strm.readStr(4)
   result.dataLength = strm.readUint32()
-  while true:
+  var size: uint32
+  while size < result.dataLength:
+    var evtSet = EventSet()
+    evtSet.deltaTime = strm.readDeltaTime()
     var pref = strm.peekUint8()
     case pref
     of stF0, stF7:
-      result.data.add(strm.readSysExEvent())
+      evtSet.event = strm.readSysExEvent(evtSet.deltaTime)
+      size += evtSet.event.size
+      result.data.add(evtSet)
     of stMetaPrefix:
-      result.data.add(strm.readMetaEvent())
+      evtSet.event = strm.readMetaEvent(evtSet.deltaTime)
+      size += evtSet.event.size
+      result.data.add(evtSet)
     else:
       pref = pref and 0b1111_0000
       case pref
       of stNoteOff, stNoteOn, stControlChange:
-        result.data.add(strm.readMIDIEvent())
+        evtSet.event = strm.readMIDIEvent()
+        size += evtSet.event.size
+        result.data.add(evtSet)
       else:
         doAssert false, "不正なデータ"
-        discard
 
 proc readSMF(filename: string): SMF =
   result = SMF()
