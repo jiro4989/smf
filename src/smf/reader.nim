@@ -191,12 +191,12 @@ proc readTrackChunk(strm: Stream): TrackChunk =
         result.data.add(evtSet)
       else:
         doAssert false, "不正なデータ"
+  let evtSet = EventSet(event: strm.readMetaEvent(0))
+  result.data.add(evtSet)
   let eot = result.data[^1].event
   let meta = cast[MetaEvent](eot)
-  echo meta.kind
-  # FIXME: 明らかにおかしい
-  #doAssert meta.kind == ekMeta, "終端イベントタイプ不正"
-  #doAssert meta.metaType == metaEndOfTrack, "終端データ不正"
+  doAssert meta.kind == ekMeta, "終端イベントタイプ不正"
+  doAssert meta.metaType == metaEndOfTrack, "終端データ不正"
 
 proc readSMF*(filename: string): SMF =
   result = SMF()
