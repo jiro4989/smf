@@ -1,18 +1,6 @@
 import streams, sugar, endians
 
-import consts
-
-type
-  Status = uint8
-  DeltaTime = uint32
-
-const
-  stNoteOff: Status = 0b1000_0000'u8
-  stNoteOn: Status = 0b1001_0000'u8
-  stControlChange: Status = 0b1011_0000'u8
-  stF0: Status = 0b1111_0000'u8
-  stF7: Status = 0b1111_0111'u8
-  stMetaPrefix: Status = 0b1111_1111'u8
+import consts, midistatus
 
 type
   SMF* = ref object
