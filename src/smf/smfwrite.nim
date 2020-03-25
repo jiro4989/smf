@@ -37,5 +37,37 @@ proc writePolyphonicKeyPressure*(self: SMFWrite, channel, note, velocity: byte) 
   # vv
   self.data.write(velocity)
 
+proc writeControlChange*(self: SMFWrite, channel, controller, value: byte) =
+  ## 3 byte (Bn cc vv) 特殊なので注意
+  # Bn
+  self.data.write(midiStatusByte(stControlChange, channel))
+  # cc
+  self.data.write(controller)
+  # vv
+  self.data.write(value)
+
+proc writeProgramChange*(self: SMFWrite, channel, program: byte) =
+  ## 2 byte (Cn pp)
+  # Cn
+  self.data.write(midiStatusByte(stProgramChange, channel))
+  # pp
+  self.data.write(program)
+
+proc writeChannelPressure*(self: SMFWrite, channel, pressure: byte) =
+  ## 2 byte (Dn pp)
+  # Dn
+  self.data.write(midiStatusByte(stChannelPressure, channel))
+  # pp
+  self.data.write(pressure)
+
+proc writePitchBend*(self: SMFWrite, channel, pitch1, pitch2: byte) =
+  ## 2 byte (Dn pp) リトルエンディアンなので注意
+  # En
+  self.data.write(midiStatusByte(stPitchBend, channel))
+  # ll
+  self.data.write(pitch1)
+  # mm
+  self.data.write(pitch2)
+
 proc openSMFWrite*(filename: string): SMFWrite =
   discard
