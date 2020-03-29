@@ -3,14 +3,14 @@ import streams
 import midistatus, utils
 
 type
-  SMFWrite* = ref object
+  SmfWrite* = ref object
     fileName: string
     data: Stream
 
 proc midiStatusByte(status: Status, channel: byte): byte =
   result = status and (channel and 0x0F'u8)
 
-proc writeMidiNoteOff*(self: SMFWrite, timeNum: uint32, channel, note: byte) =
+proc writeMidiNoteOff*(self: SmfWrite, timeNum: uint32, channel, note: byte) =
   ## 3 byte (8n kk vv)
   # delta time
   self.data.write(timeNum.toDeltaTime)
@@ -22,7 +22,7 @@ proc writeMidiNoteOff*(self: SMFWrite, timeNum: uint32, channel, note: byte) =
   # vv
   self.data.write(0'u8)
 
-proc writeMidiNoteOn*(self: SMFWrite, timeNum: uint32, channel, note, velocity: byte) =
+proc writeMidiNoteOn*(self: SmfWrite, timeNum: uint32, channel, note, velocity: byte) =
   ## 3 byte (9n kk vv)
   # delta time
   self.data.write(timeNum.toDeltaTime)
@@ -34,7 +34,7 @@ proc writeMidiNoteOn*(self: SMFWrite, timeNum: uint32, channel, note, velocity: 
   # vv
   self.data.write(velocity)
 
-proc writeMidiPolyphonicKeyPressure*(self: SMFWrite, timeNum: uint32, channel, note, velocity: byte) =
+proc writeMidiPolyphonicKeyPressure*(self: SmfWrite, timeNum: uint32, channel, note, velocity: byte) =
   ## 3 byte (An kk vv)
   # delta time
   self.data.write(timeNum.toDeltaTime)
@@ -46,7 +46,7 @@ proc writeMidiPolyphonicKeyPressure*(self: SMFWrite, timeNum: uint32, channel, n
   # vv
   self.data.write(velocity)
 
-proc writeMidiControlChange*(self: SMFWrite, timeNum: uint32, channel, controller, value: byte) =
+proc writeMidiControlChange*(self: SmfWrite, timeNum: uint32, channel, controller, value: byte) =
   ## 3 byte (Bn cc vv) 特殊なので注意
   # delta time
   self.data.write(timeNum.toDeltaTime)
@@ -58,7 +58,7 @@ proc writeMidiControlChange*(self: SMFWrite, timeNum: uint32, channel, controlle
   # vv
   self.data.write(value)
 
-proc writeMidiProgramChange*(self: SMFWrite, timeNum: uint32, channel, program: byte) =
+proc writeMidiProgramChange*(self: SmfWrite, timeNum: uint32, channel, program: byte) =
   ## 2 byte (Cn pp)
   # delta time
   self.data.write(timeNum.toDeltaTime)
@@ -68,7 +68,7 @@ proc writeMidiProgramChange*(self: SMFWrite, timeNum: uint32, channel, program: 
   # pp
   self.data.write(program)
 
-proc writeMidiChannelPressure*(self: SMFWrite, timeNum: uint32, channel, pressure: byte) =
+proc writeMidiChannelPressure*(self: SmfWrite, timeNum: uint32, channel, pressure: byte) =
   ## 2 byte (Dn pp)
   # delta time
   self.data.write(timeNum.toDeltaTime)
@@ -78,7 +78,7 @@ proc writeMidiChannelPressure*(self: SMFWrite, timeNum: uint32, channel, pressur
   # pp
   self.data.write(pressure)
 
-proc writeMidiPitchBend*(self: SMFWrite, timeNum: uint32, channel, pitch1, pitch2: byte) =
+proc writeMidiPitchBend*(self: SmfWrite, timeNum: uint32, channel, pitch1, pitch2: byte) =
   ## 2 byte (Dn pp) リトルエンディアンなので注意
   # delta time
   self.data.write(timeNum.toDeltaTime)
@@ -90,12 +90,12 @@ proc writeMidiPitchBend*(self: SMFWrite, timeNum: uint32, channel, pitch1, pitch
   # mm
   self.data.write(pitch2)
 
-proc writeMetaEndOfTrack*(self: SMFWrite) =
+proc writeMetaEndOfTrack*(self: SmfWrite) =
   ## 4 byte
   self.data.write(0'u8)             # delta time
   self.data.write(stMetaPrefix)     # meta prefix
   self.data.write(meEndOfTrack.ord) # end of track
   self.data.write(0'u8)             # data length
 
-proc openSMFWrite*(filename: string): SMFWrite =
+proc openSmfWrite*(filename: string): SmfWrite =
   discard
