@@ -1,6 +1,6 @@
 import streams
 
-import midistatus
+import midistatus, utils
 
 type
   SMFWrite* = ref object
@@ -10,8 +10,11 @@ type
 proc midiStatusByte(status: Status, channel: byte): byte =
   result = status and (channel and 0x0F'u8)
 
-proc writeNoteOff*(self: SMFWrite, channel, note: byte) =
+proc writeNoteOff*(self: SMFWrite, timeNum: uint32, channel, note: byte) =
   ## 3 byte (8n kk vv)
+  # delta time
+  self.data.write(timeNum.toDeltaTime)
+  # MIDI event
   # 8n
   self.data.write(midiStatusByte(stNoteOff, channel))
   # kk
@@ -19,8 +22,11 @@ proc writeNoteOff*(self: SMFWrite, channel, note: byte) =
   # vv
   self.data.write(0'u8)
 
-proc writeNoteOn*(self: SMFWrite, channel, note, velocity: byte) =
+proc writeNoteOn*(self: SMFWrite, timeNum: uint32, channel, note, velocity: byte) =
   ## 3 byte (9n kk vv)
+  # delta time
+  self.data.write(timeNum.toDeltaTime)
+  # MIDI event
   # 9n
   self.data.write(midiStatusByte(stNoteOn, channel))
   # kk
@@ -28,8 +34,11 @@ proc writeNoteOn*(self: SMFWrite, channel, note, velocity: byte) =
   # vv
   self.data.write(velocity)
 
-proc writePolyphonicKeyPressure*(self: SMFWrite, channel, note, velocity: byte) =
+proc writePolyphonicKeyPressure*(self: SMFWrite, timeNum: uint32, channel, note, velocity: byte) =
   ## 3 byte (An kk vv)
+  # delta time
+  self.data.write(timeNum.toDeltaTime)
+  # MIDI event
   # An
   self.data.write(midiStatusByte(stPolyphonicKeyPressure, channel))
   # kk
@@ -37,8 +46,11 @@ proc writePolyphonicKeyPressure*(self: SMFWrite, channel, note, velocity: byte) 
   # vv
   self.data.write(velocity)
 
-proc writeControlChange*(self: SMFWrite, channel, controller, value: byte) =
+proc writeControlChange*(self: SMFWrite, timeNum: uint32, channel, controller, value: byte) =
   ## 3 byte (Bn cc vv) 特殊なので注意
+  # delta time
+  self.data.write(timeNum.toDeltaTime)
+  # MIDI event
   # Bn
   self.data.write(midiStatusByte(stControlChange, channel))
   # cc
@@ -46,22 +58,31 @@ proc writeControlChange*(self: SMFWrite, channel, controller, value: byte) =
   # vv
   self.data.write(value)
 
-proc writeProgramChange*(self: SMFWrite, channel, program: byte) =
+proc writeProgramChange*(self: SMFWrite, timeNum: uint32, channel, program: byte) =
   ## 2 byte (Cn pp)
+  # delta time
+  self.data.write(timeNum.toDeltaTime)
+  # MIDI event
   # Cn
   self.data.write(midiStatusByte(stProgramChange, channel))
   # pp
   self.data.write(program)
 
-proc writeChannelPressure*(self: SMFWrite, channel, pressure: byte) =
+proc writeChannelPressure*(self: SMFWrite, timeNum: uint32, channel, pressure: byte) =
   ## 2 byte (Dn pp)
+  # delta time
+  self.data.write(timeNum.toDeltaTime)
+  # MIDI event
   # Dn
   self.data.write(midiStatusByte(stChannelPressure, channel))
   # pp
   self.data.write(pressure)
 
-proc writePitchBend*(self: SMFWrite, channel, pitch1, pitch2: byte) =
+proc writePitchBend*(self: SMFWrite, timeNum: uint32, channel, pitch1, pitch2: byte) =
   ## 2 byte (Dn pp) リトルエンディアンなので注意
+  # delta time
+  self.data.write(timeNum.toDeltaTime)
+  # MIDI event
   # En
   self.data.write(midiStatusByte(stPitchBend, channel))
   # ll
