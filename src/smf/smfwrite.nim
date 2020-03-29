@@ -1,10 +1,12 @@
 import streams
 
-import midistatus, utils
+import smftypes, midistatus, utils
 
 type
   SmfWrite* = ref object
     fileName: string
+    header: HeaderChunk
+    track: TrackChunk
     data: Stream
 
 proc midiStatusByte(status: Status, channel: byte): byte =
@@ -97,5 +99,18 @@ proc writeMetaEndOfTrack*(self: SmfWrite) =
   self.data.write(meEndOfTrack.ord) # end of track
   self.data.write(0'u8)             # data length
 
+proc newHeaderChunk(): HeaderChunk =
+  result = HeaderChunk(
+    chunkType: headerChunkType,
+    format: 0'u16,
+    trackCount: 1'u16,
+    timeUnit: 0'u16,
+  )
+
+proc newTrackChunk(): TrackChunk =
+  result = TrackChunk(
+    chunkType: trackChunkType,
+  )
+
 proc openSmfWrite*(filename: string): SmfWrite =
-  discard
+  result = SmfWrite(header: newHeaderChunk(), track: newTrackChunk())
