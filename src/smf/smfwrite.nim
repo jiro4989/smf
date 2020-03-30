@@ -11,85 +11,53 @@ type
 proc midiStatusByte(status: Status, channel: byte): byte =
   result = status and (channel and 0x0F'u8)
 
+template writeValueTmpl =
+  # delta time
+  let deltaTime = timeNum.toDeltaTime
+  self.track.data.write(deltaTime)
+  inc(self.track.dataLength, deltaTime.len)
+  # event
+  self.track.data.write(midiStatusByte(st, v1))
+  inc(self.track.dataLength)
+  self.track.data.write(v2)
+  inc(self.track.dataLength)
+
+proc writeValue3(self: SmfWrite, timeNum: uint32, st: Status, v1, v2: byte) =
+  writeValueTmpl()
+
+proc writeValue4(self: SmfWrite, timeNum: uint32, st: Status, v1, v2, v3: byte) =
+  writeValueTmpl()
+  self.track.data.write(v3)
+  inc(self.track.dataLength)
+
 proc writeMidiNoteOff*(self: SmfWrite, timeNum: uint32, channel, note: byte) =
   ## 3 byte (8n kk vv)
-  # delta time
-  self.track.data.write(timeNum.toDeltaTime)
-  # MIDI event
-  # 8n
-  self.track.data.write(midiStatusByte(stNoteOff, channel))
-  # kk
-  self.track.data.write(note)
-  # vv
-  self.track.data.write(0'u8)
+  self.writeValue4(timeNum, stNoteOff, channel, note, 0'u8)
 
 proc writeMidiNoteOn*(self: SmfWrite, timeNum: uint32, channel, note, velocity: byte) =
   ## 3 byte (9n kk vv)
-  # delta time
-  self.track.data.write(timeNum.toDeltaTime)
-  # MIDI event
-  # 9n
-  self.track.data.write(midiStatusByte(stNoteOn, channel))
-  # kk
-  self.track.data.write(note)
-  # vv
-  self.track.data.write(velocity)
+  self.writeValue4(timeNum, stNoteOn, channel, note, velocity)
 
 proc writeMidiPolyphonicKeyPressure*(self: SmfWrite, timeNum: uint32, channel, note, velocity: byte) =
   ## 3 byte (An kk vv)
-  # delta time
-  self.track.data.write(timeNum.toDeltaTime)
-  # MIDI event
-  # An
-  self.track.data.write(midiStatusByte(stPolyphonicKeyPressure, channel))
-  # kk
-  self.track.data.write(note)
-  # vv
-  self.track.data.write(velocity)
+  self.writeValue4(timeNum, stPolyphonicKeyPressure, channel, note, velocity)
 
 proc writeMidiControlChange*(self: SmfWrite, timeNum: uint32, channel, controller, value: byte) =
   ## 3 byte (Bn cc vv) 特殊なので注意
-  # delta time
-  self.track.data.write(timeNum.toDeltaTime)
-  # MIDI event
-  # Bn
-  self.track.data.write(midiStatusByte(stControlChange, channel))
-  # cc
-  self.track.data.write(controller)
-  # vv
-  self.track.data.write(value)
+  self.writeValue4(timeNum, stControlChange, channel, controller, value)
 
 proc writeMidiProgramChange*(self: SmfWrite, timeNum: uint32, channel, program: byte) =
   ## 2 byte (Cn pp)
   # delta time
-  self.track.data.write(timeNum.toDeltaTime)
-  # MIDI event
-  # Cn
-  self.track.data.write(midiStatusByte(stProgramChange, channel))
-  # pp
-  self.track.data.write(program)
+  self.writeValue3(timeNum, stProgramChange, channel, program)
 
 proc writeMidiChannelPressure*(self: SmfWrite, timeNum: uint32, channel, pressure: byte) =
   ## 2 byte (Dn pp)
-  # delta time
-  self.track.data.write(timeNum.toDeltaTime)
-  # MIDI event
-  # Dn
-  self.track.data.write(midiStatusByte(stChannelPressure, channel))
-  # pp
-  self.track.data.write(pressure)
+  self.writeValue3(timeNum, stChannelPressure, channel, pressure)
 
 proc writeMidiPitchBend*(self: SmfWrite, timeNum: uint32, channel, pitch1, pitch2: byte) =
   ## 2 byte (Dn pp) リトルエンディアンなので注意
-  # delta time
-  self.track.data.write(timeNum.toDeltaTime)
-  # MIDI event
-  # En
-  self.track.data.write(midiStatusByte(stPitchBend, channel))
-  # ll
-  self.track.data.write(pitch1)
-  # mm
-  self.track.data.write(pitch2)
+  self.writeValue4(timeNum, stPitchBend, channel, pitch1, pitch2)
 
 proc writeMetaEndOfTrack*(self: SmfWrite) =
   ## 4 byte
