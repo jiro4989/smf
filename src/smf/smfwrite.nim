@@ -61,10 +61,10 @@ proc writeMidiPitchBend*(self: SmfWrite, timeNum: uint32, channel, pitch1, pitch
 
 proc writeMetaEndOfTrack*(self: SmfWrite) =
   ## 4 byte
-  self.track.data.write(0'u8)             # delta time
-  self.track.data.write(stMetaPrefix)     # meta prefix
-  self.track.data.write(meEndOfTrack.ord) # end of track
-  self.track.data.write(0'u8)             # data length
+  self.track.data.write(0'u8)         # delta time
+  self.track.data.write(stMetaPrefix) # meta prefix
+  self.track.data.write(meEndOfTrack) # end of track
+  self.track.data.write(0'u8)         # data length
 
 proc newHeaderChunk(): HeaderChunk =
   result = HeaderChunk(
