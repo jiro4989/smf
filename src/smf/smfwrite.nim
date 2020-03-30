@@ -70,19 +70,51 @@ proc writeMetaEndOfTrack*(self: SmfWrite) =
 proc newHeaderChunk(): HeaderChunk =
   result = HeaderChunk(
     chunkType: headerChunkType,
+    dataLength: 6'u32,
     format: 0'u16,
     trackCount: 1'u16,
     timeUnit: 0'u16,
   )
 
-proc newTrackChunk(filename: string): TrackChunk =
+proc newTrackChunk(): TrackChunk =
   result = TrackChunk(
     chunkType: trackChunkType,
-    data: newFileStream(filename, fmWrite),
+    data: newStringStream(),
   )
 
 proc openSmfWrite*(filename: string): SmfWrite =
-  result = SmfWrite(header: newHeaderChunk(), track: newTrackChunk(filename))
+  result = SmfWrite(
+    filename: filename,
+    header: newHeaderChunk(),
+    track: newTrackChunk(),
+  )
 
 proc close*(self: SmfWrite) =
+  var outfile = newFileStream(self.filename, fmWrite)
+
+  # write header
+  let h = self.header
+  outfile.write(h.chunkType)
+  outfile.write(h.dataLength)
+  outfile.write(h.format)
+  outfile.write(h.trackCount)
+  outfile.write(h.timeUnit)
+
+  # write track
+  outfile.write(self.track.chunkType)
+  outfile.write(self.track.dataLength)
+  self.track.data.setPosition(0)
+  const bufSize = 1024
+  var buffer: array[bufSize, byte]
+  while true:
+    let writtenSize = self.track.data.readData(addr(buffer), bufSize)
+    if writtenSize == bufSize:
+      outFile.write(buffer)
+    elif 0 < writtenSize:
+      for i in 0..<writtenSize:
+        outFile.write(buffer[i])
+    else:
+      if self.track.data.atEnd:
+        break
+  outfile.close()
   self.track.data.close()
