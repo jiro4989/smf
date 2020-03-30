@@ -65,6 +65,7 @@ proc writeMetaEndOfTrack*(self: SmfWrite) =
   self.track.data.write(stMetaPrefix) # meta prefix
   self.track.data.write(meEndOfTrack) # end of track
   self.track.data.write(0'u8)         # data length
+  inc(self.track.dataLength, 4)
 
 proc newHeaderChunk(): HeaderChunk =
   result = HeaderChunk(
@@ -82,3 +83,6 @@ proc newTrackChunk(filename: string): TrackChunk =
 
 proc openSmfWrite*(filename: string): SmfWrite =
   result = SmfWrite(header: newHeaderChunk(), track: newTrackChunk(filename))
+
+proc close*(self: SmfWrite) =
+  self.track.data.close()
