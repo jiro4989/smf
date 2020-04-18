@@ -1,4 +1,4 @@
-import streams
+import streams, endians
 
 import smftypes, midistatus, utils
 
@@ -90,6 +90,12 @@ proc openSmfWrite*(filename: string): SmfWrite =
     track: newTrackChunk(),
   )
 
+template writeBigEndian[T](s: Stream, data: T) =
+  block:
+    var date2: T
+    bigEndian32(addr(date2), addr(data))
+    s.write(date2)
+
 proc close*(self: SmfWrite) =
   self.writeMetaEndOfTrack()
 
@@ -98,14 +104,14 @@ proc close*(self: SmfWrite) =
   # write header
   let h = self.header
   outfile.write(h.chunkType)
-  outfile.write(h.dataLength)
+  outfile.writeBigEndian(h.dataLength)
   outfile.write(h.format)
   outfile.write(h.trackCount)
   outfile.write(h.timeUnit)
 
   # write track
   outfile.write(self.track.chunkType)
-  outfile.write(self.track.dataLength)
+  outfile.writeBigEndian(self.track.dataLength)
   self.track.data.setPosition(0)
   const bufSize = 1024
   var buffer: array[bufSize, byte]
