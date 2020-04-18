@@ -14,7 +14,8 @@ proc midiStatusByte(status: Status, channel: byte): byte =
 template writeValueTmpl =
   # delta time
   let deltaTime = timeNum.toDeltaTime
-  self.track.data.write(deltaTime)
+  for d in deltaTime:
+    self.track.data.write(d)
   inc(self.track.dataLength, deltaTime.len)
   # event
   self.track.data.write(midiStatusByte(st, v1))
@@ -90,6 +91,8 @@ proc openSmfWrite*(filename: string): SmfWrite =
   )
 
 proc close*(self: SmfWrite) =
+  self.writeMetaEndOfTrack()
+
   var outfile = newFileStream(self.filename, fmWrite)
 
   # write header
