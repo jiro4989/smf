@@ -9,9 +9,8 @@ suite "case: writing midi file":
     var smf = openSmfWrite(outDir/"case1.mid")
     let
       channel = 0'u8
-      note = 49'u8
       velocity = 100'u8
-    smf.writeMidiNoteOn(0'u32, channel, note, velocity)
-    smf.writeMidiNoteOff(120'u32, channel, note)
-    smf.writeMetaEndOfTrack()
+    for note in 49'u8 .. 68'u8:
+      smf.writeMidiNoteOn(0'u32, channel, note, velocity)
+      smf.writeMidiNoteOff(120'u32, channel, note)
     smf.close()
