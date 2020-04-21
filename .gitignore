@@ -1,2 +1,5 @@
-tests/test1
+tests/*
+!tests/*.*
+tests/out/*
+!tests/out/.gitkeep
 main
