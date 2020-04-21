@@ -13,7 +13,7 @@ suite "readSMF":
     var f = open(midiFile)
     let
       size = f.getFileSize
-      got = readSMF(midiFile)
+      got = openSmfReadFile(midiFile)
       trackSize = got.track.dataLength
     echo got[]
     f.close

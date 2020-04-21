@@ -1,6 +1,6 @@
 import streams, endians
 
-import smftypes, midistatus, utils
+import smftypes, utils
 
 type
   SmfWrite* = ref object
@@ -83,7 +83,7 @@ proc newTrackChunk(): TrackChunk =
     data: newStringStream(),
   )
 
-proc openSmfWrite*(filename: string, timeUnit: uint16): SmfWrite =
+proc openSmfWriteFile*(filename: string, timeUnit: uint16): SmfWrite =
   result = SmfWrite(
     filename: filename,
     header: newHeaderChunk(timeUnit),

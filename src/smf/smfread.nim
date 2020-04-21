@@ -1,67 +1,11 @@
 import streams, sugar, endians
 
-import consts, midistatus
+import smftypes
 
 type
-  SMF* = ref object
+  SMFRead* = ref object
     header*: HeaderChunk
     track*: TrackChunk
-
-  HeaderChunk* = ref object
-    chunkType*: string
-    dataLength*: uint32
-    format*: uint16
-    trackCount*: uint16
-    timeUnit*: uint16
-
-  TrackChunk* = ref object
-    chunkType*: string
-    dataLength*: uint32
-    data*: seq[EventSet]
-
-  EventSet* = ref object
-    ## An object that has delta time and event data.
-    deltaTime*: DeltaTime
-    event*: Event
-
-  EventKind* = enum
-    ekMIDI, ekSysEx, ekMeta
-  Event* = ref object of RootObj
-    size*: uint32
-    kind*: EventKind
-  MIDIEvent* = ref object of Event
-    ## 3 byte
-    channel*: uint8 ## 1/2 byte (0000 xxxx)
-    case status*: Status ## 1/2 byte (xxxx 0000)
-    of stNoteOff, stNoteOn:
-      note*: uint8 ## 1 byte
-      velocity*: uint8 ## 1 byte
-    of stControlChange:
-      control*: uint8 ## 1 byte
-      data*: uint8 ## 1 byte
-    else:
-      discard
-  SysExEvent* = ref object of Event
-    eventType*: byte
-    dataLength*: uint32
-    data*: seq[byte]
-  MetaEvent* = ref object of Event
-    metaPrefix*: byte ## 0xff
-    metaType*: byte
-    dataLength*: uint32
-    data*: seq[byte]
-
-  ChannelMessage* = ref object
-    channel*: uint8
-    case status*: Status
-    of stNoteOff, stNoteOn:
-      note*: uint8
-      velocity*: uint8
-    of stControlChange:
-      control*: uint8
-      data*: uint8
-    else:
-      discard
 
 template decho(x: untyped) =
   when not defined release:
@@ -186,8 +130,8 @@ proc readTrackChunk(strm: Stream): TrackChunk =
   doAssert meta.kind == ekMeta, "終端イベントタイプ不正"
   doAssert meta.metaType == metaEndOfTrack, "終端データ不正"
 
-proc readSMF*(filename: string): SMF =
-  result = SMF()
+proc openSmfReadFile*(filename: string): SMFRead =
+  result = SMFRead()
   var strm = newFileStream(filename, fmRead)
   result.header = strm.readHeaderChunk()
   result.track = strm.readTrackChunk()
