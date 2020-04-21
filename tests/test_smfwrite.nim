@@ -6,7 +6,7 @@ let outDir = "tests"/"out"
 
 suite "case: writing midi file":
   test "normal":
-    var smf = openSmfWrite(outDir/"case1.mid")
+    var smf = openSmfWrite(outDir/"case1.mid", 480'u16)
     let
       channel = 0'u8
       velocity = 100'u8

@@ -68,13 +68,13 @@ proc writeMetaEndOfTrack*(self: SmfWrite) =
   self.track.data.write(0'u8)         # data length
   inc(self.track.dataLength, 4)
 
-proc newHeaderChunk(): HeaderChunk =
+proc newHeaderChunk(timeUnit: uint16): HeaderChunk =
   result = HeaderChunk(
     chunkType: headerChunkType,
     dataLength: 6'u32,
     format: 0'u16,
     trackCount: 1'u16,
-    timeUnit: 0'u16,
+    timeUnit: timeUnit,
   )
 
 proc newTrackChunk(): TrackChunk =
@@ -83,16 +83,22 @@ proc newTrackChunk(): TrackChunk =
     data: newStringStream(),
   )
 
-proc openSmfWrite*(filename: string): SmfWrite =
+proc openSmfWrite*(filename: string, timeUnit: uint16): SmfWrite =
   result = SmfWrite(
     filename: filename,
-    header: newHeaderChunk(),
+    header: newHeaderChunk(timeUnit),
     track: newTrackChunk(),
   )
 
-template writeBigEndian[T](s: Stream, data: T) =
+template writeBigEndian(s: Stream, data: uint16) =
   block:
-    var date2: T
+    var date2: uint16
+    bigEndian16(addr(date2), addr(data))
+    s.write(date2)
+
+template writeBigEndian(s: Stream, data: uint32) =
+  block:
+    var date2: uint32
     bigEndian32(addr(date2), addr(data))
     s.write(date2)
 
@@ -106,8 +112,8 @@ proc close*(self: SmfWrite) =
   outfile.write(h.chunkType)
   outfile.writeBigEndian(h.dataLength)
   outfile.write(h.format)
-  outfile.write(h.trackCount)
-  outfile.write(h.timeUnit)
+  outfile.writeBigEndian(h.trackCount)
+  outfile.writeBigEndian(h.timeUnit)
 
   # write track
   outfile.write(self.track.chunkType)
