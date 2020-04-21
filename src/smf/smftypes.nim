@@ -4,8 +4,6 @@ import status, metaevent
 export status, metaevent
 
 type
-  DeltaTime* = uint32
-
   HeaderChunk* = ref object
     chunkType*: string
     dataLength*: uint32
@@ -16,11 +14,6 @@ type
     chunkType*: string
     dataLength*: uint32
     data*: Stream
-
-  EventSet* = ref object
-    ## An object that has delta time and event data.
-    deltaTime*: DeltaTime
-    event*: Event
 
   EventKind* = enum
     ekMIDI, ekSysEx, ekMeta
@@ -48,6 +41,13 @@ type
     metaType*: byte
     dataLength*: uint32
     data*: seq[byte]
+
+  DeltaTime* = uint32
+
+  EventSet* = ref object
+    ## An object that has delta time and event data.
+    deltaTime*: DeltaTime
+    event*: Event
 
 
 const
