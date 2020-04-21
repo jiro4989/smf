@@ -9,7 +9,7 @@ type
     track: TrackChunk
 
 proc midiStatusByte(status: Status, channel: byte): byte =
-  result = status and (channel and 0x0F'u8)
+  result = status xor (channel and 0x0F'u8)
 
 template writeValueTmpl =
   # delta time
