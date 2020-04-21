@@ -1,6 +1,6 @@
 import unittest
 
-include smf/reader
+include smf/smfread
 
 const midiFile = "tests/test.mid"
 
